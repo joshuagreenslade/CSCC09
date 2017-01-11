@@ -7,7 +7,7 @@
 		    <link href="style/index.css" rel="stylesheet" type="text/css"/>
 		    <link href="style/form.css" rel="stylesheet" type="text/css"/>
 	</head>
-	
+
 	<body>
 		<header>
 			<h1>Profile</h1>
@@ -20,14 +20,11 @@
 			<div class="form_title">Change your profile</div>
 			<input type="text" id="profile_form_name" class="form_element" placeholder="Enter your name"/>
 			<div class="form_radio">
-				<input type="radio" name="upload" value="URL"><p class="text">URL</p>
-				<input type="radio" name="upload" value="File Upload"><p class="text">File Upload</p>
+				<input type="radio" name="upload" value="URL"><p class="form_element">URL</p>
+				<input type="radio" name="upload" value="File Upload"><p class="form_element">File Upload</p>
 			</div>		
 			<input type="text" id="url_form" class="form_element" placeholder="Enter the image url"/>
-			<div class="form_radio">
-				<button>Choose File</button>
-				<p id="file_choosen" class="text">No file chosen</p>
-			</div>
+			<input type="file" class="form_element">
 			<input type="submit" name="submit" class="btn" value="Submit"/>
 		</form>
 
