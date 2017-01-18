@@ -4,7 +4,7 @@ var view = (function(){
     "use strict";
 
     window.onload = function(e){
-console.log("loading");
+
         //request stored data
         document.dispatchEvent(new CustomEvent("onPageLoad"));
     };
@@ -27,30 +27,37 @@ console.log("loading");
         document.dispatchEvent(new CustomEvent("onFormSubmit", {detail: info}));
     };
 
-
-    //initalize the pre-existing messages' up and down button on click methods
-    var message = document.getElementsByClassName("message");
-    for(var i=0; i<message.length; i++) {
-
-
-        //get the element's up and down button
-    	var down_button = document.getElementsByClassName("down_button")[i];
-    	var up_button = document.getElementsByClassName("up_button")[i];
-    	
-    	down_button.onclick = function(e){
-        	var value = down_button.innerHTML;
-    		var data = {down_button, value};
-        	document.dispatchEvent(new CustomEvent("onDownVote", {detail: data}));
-        };
-
-        up_button.onclick = function(e){
-    		var value = up_button.innerHTML;
-    		var data = {up_button, value};
-        	document.dispatchEvent(new CustomEvent("onUpVote", {detail: data}));
-        };
-    };
-
     var view = {};
+
+
+    //sets the onClick methods for the button
+	view.setOnClick = function(button) {
+
+		button.onclick = function(e){
+			button = e.target;
+			var value = e.target.innerHTML;
+			var data = {button, value};
+			document.dispatchEvent(new CustomEvent("onVote", {detail: data}));
+		};
+	};
+
+
+	//initialize the thumb buttons for each message
+    view.initalizeButtons = function() {
+
+	    //initalize the pre-existing messages' up and down button on click methods
+	    var message = document.getElementsByClassName("message");
+	    for(var i = 0; i < message.length; i++) {
+
+	        //get the element's up and down buttons
+	    	var down_button = document.getElementsByClassName("down_button")[i];
+	    	var up_button = document.getElementsByClassName("up_button")[i];
+
+			view.setOnClick(down_button);
+			view.setOnClick(up_button);
+    	}
+	};
+
 
     view.insertMessage = function(message){
 
@@ -71,87 +78,38 @@ console.log("loading");
                 </div>`;
 
         // add this element to the document
-//        document.getElementById("messages").prepend(e);
+        document.getElementById("messages").prepend(e);
 
+		view.initalizeButtons();
         //request to save this element
-console.log("message inserted");
-console.log(e);
-var test = document.getElementById("messages").innerHTML;
-        document.dispatchEvent(new CustomEvent("onMessageInsert", {detail: test/*e*/}));
 
-        //set the onclick method for up and down buttons in the new element
-		var down_button = e.children[2].children[0];
-		var up_button = e.children[2].children[1];
-
-		down_button.onclick = function(e){
-	    	var value = down_button.innerHTML;
-	    	var data = {down_button, value};
-	    	document.dispatchEvent(new CustomEvent("onDownVote", {detail: data}));
-	    };
-
-	    up_button.onclick = function(e){
-	    	var value = up_button.innerHTML;
-	    	var data = {up_button, value};
-	    	document.dispatchEvent(new CustomEvent("onUpVote", {detail: data}));
-	    };
+		var messages = document.getElementById("messages").innerHTML;
+        document.dispatchEvent(new CustomEvent("onMessageInsert", {detail: messages}));
     };
 
-    view.updateDownCount = function(data){
-	    var down_button = data.down_button;
+
+    view.updateCount = function(data){
+	    var button = data.button;
     	var count = data.count;
-    	down_button.innerHTML = count;
+    	
+    	button.innerHTML = count;
 
         //update storage
-        var messages = document.getElementsByClassName("message");
+        var messages = document.getElementById("messages").innerHTML;
         document.dispatchEvent(new CustomEvent("onVoteUpdate", {detail: messages}));
     };
 
-    view.updateUpCount = function(data){
-	    var up_button = data.up_button;
-    	var count = data.count;
-    	up_button.innerHTML = count;
-
-        //update storage
-        var messages = document.getElementsByClassName("message");
-        document.dispatchEvent(new CustomEvent("onVoteUpdate", {detail: messages}));
-    };
 
     view.displayMessages = function(messages){
-console.log("displaying messages");
-console.log(messages);
-//console.log(messages[0]);
+
         //if not null prepend messages to messages element
-        if(messages != null) {
-            for(var i=0; i<messages.length; i++){
-//                document.getElementById("messages").prepend(messages[i]);
-            };
-        };
+        if(messages !== null) {
+        	document.getElementById("messages").innerHTML = "";
+            document.getElementById("messages").innerHTML += messages;
+        }
+
+        view.initalizeButtons();
     };
-
-/*
-       //prepend stored data
-
-
-
-
-        var messages = ["test", "hi"];  //swap with request once coded
-
-
-
-
-
-
-        if(messages) {
-
-            //not null prepend to messages element
-            for(var i=0; i<messages.length; i++){
-                document.getElementById("messages").prepend(messages[i]);
-            };
-        };
-*/
-
-
-
 
     return view;
     
