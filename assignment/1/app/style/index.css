@@ -1,3 +1,8 @@
+.arrow{
+    background-size: 50%;
+    height: 600px;
+}
+
 #left_arrow{
 	background-image: url('../media/right-arrow.png');
     -webkit-transform: scaleX(-1);
@@ -8,13 +13,24 @@
 }
 
 .main_image{
-	display: flex;
+    display: flex;
+    align-items: center;
 	flex-direction: row;
 	justify-content: space-between;
 }
 
-.arrow{
-	background-size: 50%;
+#image{
+    max-width: 600px;
+    max-height: 600px;
+}
+
+.image_stuff{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 650px;
 }
 
 #messages{
@@ -24,7 +40,6 @@
 
 .message{
     display:flex;
-    flex-flow:flex-start;
     align-items:center;
     align-items: flex-start;
     justify-content: space-between;
@@ -45,29 +60,11 @@
     padding-top:10px;
 }
 
-.message_name a{
-    font-weight:bold;
-    color: #000000;
-    font-size: 36px;
-    text-decoration:none;
-}
-
 .message_content{
     width:580px;
     font-size: 24px;
     margin-bottom: 5px;
-}
-
-.image_stuff{
-	margin-top: 10px;
-	display: flex;
-	flex-direction: column;
-    align-items: center;
-}
-
-.main_image{
-	display: flex;
-	align-items: center;
+    overflow-x: auto;
 }
 
 #hidden{
@@ -76,10 +73,6 @@
 
 #file_input{
     display: none;
-}
-
-.navigate_comments{
-    /*visibility: hidden;*/
 }
 
 /* This snippet of code was generated using: http://css3buttongenerator.com/ */

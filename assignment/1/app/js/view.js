@@ -3,6 +3,11 @@
 var view = (function(){
     "use strict";
 
+    window.onload = function(e){
+        var id = location.search;
+        document.dispatchEvent(new CustomEvent("onPageLoad", {detail: id}));
+    };
+
     document.getElementById("hide_button").onclick = function(e){
         if(document.getElementById("upload_form").style.display == "none"){
             document.getElementById("upload_form").style.display = "flex";
@@ -77,12 +82,10 @@ var view = (function(){
     };
 
     document.getElementById("newer_comments").onclick = function(e){
-        console.log("newer")
         document.dispatchEvent(new CustomEvent("getNewerComments"));
     };
 
     document.getElementById("older_comments").onclick = function(e){
-        console.log("older")
         document.dispatchEvent(new CustomEvent("getOlderComments"));
     };
 
@@ -96,17 +99,23 @@ var view = (function(){
         document.getElementById("image_name").innerHTML = "Title: " + data.title;
         document.getElementById("author_name").innerHTML = "By: " + data.author;
         document.getElementById("hidden").style.display = "inline";
+        history.pushState(null, "", `index.html?id=${data.id}`);
 
+        //if no left image set left arrow's visibility to hidden
+        if(data.has_left){
+            document.getElementById("left_arrow").style.visibility = "visible";
+        }
+        else{
+            document.getElementById("left_arrow").style.visibility = "hidden";
+        }
 
-        
-/*
-//look if there exists an image to the left and or right
-        var left_index = data.index - 1;
-        var right_index = data.index + 1;
-
-        document.dispatchEvent(new CustomEvent("getImageAt", {detail: left_index}));
-        document.dispatchEvent(new CustomEvent("getImageAt", {detail: right_index}));
-*/
+        //if no right image set right arrow's visibility to hidden
+        if(data.has_right){
+            document.getElementById("right_arrow").style.visibility = "visible";
+        }
+        else{
+            document.getElementById("right_arrow").style.visibility = "hidden";
+        }
     };
 
     view.removeImage = function(){
@@ -115,6 +124,7 @@ var view = (function(){
         document.getElementById("image_name").innerHTML = "";
         document.getElementById("author_name").innerHTML = "";
         document.getElementById("hidden").style.display = "none";
+        history.pushState(null, "", `index.html`);
     };
 
     view.displayComments = function(data){
@@ -145,15 +155,33 @@ var view = (function(){
             view.setDelete(document.getElementById(id).children[2]);
         }
 
-    }
+        //if there are no newer comments hide the newer comments button
+        if(data.newer_comments){
+            document.getElementById("newer_comments").style.visibility = "visible";
+        }
+        else{
+            document.getElementById("newer_comments").style.visibility = "hidden";
+        }
+
+        //if there are no older comments hide te older comments button
+        if(data.older_comments){
+            document.getElementById("older_comments").style.visibility = "visible";
+        }
+        else{
+            document.getElementById("older_comments").style.visibility = "hidden";
+        }
+    };
 
     view.setDelete = function(button){
         button.onclick = function(e){
             var id = button.parentNode.id;
-            console.log(id)
             document.dispatchEvent(new CustomEvent("onDeleteComment", {detail: id}));
-        }
-    }
+        };
+    };
+
+    view.load404 = function(){
+        window.location.href = "404.html";
+    };
 
     return view;
     

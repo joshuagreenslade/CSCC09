@@ -55,5 +55,13 @@
         model.deleteComment(id);
     });
 
+    document.addEventListener("onPageLoad", function(e){
+        var id = e.detail;
+        model.load(id);
+    });
+
+    document.addEventListener("404", function(e){
+        view.load404();
+    });
 
 }(model, view));
