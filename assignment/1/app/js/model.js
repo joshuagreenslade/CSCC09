@@ -3,51 +3,56 @@
 var model = (function(){
     "use strict";
     
-    var next_id = 0;    //id of next image to be inserted
-    var curr_id = null; //current id of image
-    var curr_comment = -1;    //which comment is currently at the top
-    var images = [];    //list of picture id's
-    var image_storage = {}; //dictionary of pictures with id as key
+    var next_id = 0;            
+    var curr_index = -1;        //index of the image that is currently displayed
+    var curr_comment = -1;      //which comment is currently at the top
+    var images = [];    
+
+
+    var Image = (function(){
+        return function Image(data){
+            this.id = next_id++;
+            this.comments = [];
+            this.next_comment = 0;
+            this.file = data.file;
+            this.title = data.title;
+            this.author = data.author;
+        };
+    }());
+
 
     var model = {};
 
 
     model.uploadImage = function(data){
-        images.push(next_id);
-        data.id = next_id;
-        data.comments = [];
-        data.next_comment = 0;
-        image_storage[next_id] = data;
-        next_id += 1;
-        curr_id = data.id;
+        var image = new Image(data);
+        images.push(image);
+        curr_index = images.length - 1;
         model.save();
 
-        data.has_left = images[images.indexOf(curr_id) - 1] !== undefined;
-        data.has_right = false;
+        image.has_left = images[curr_index - 1] !== undefined;
+        image.has_right = false;
 
-        document.dispatchEvent(new CustomEvent("onNewImage", {detail: data}));
+        document.dispatchEvent(new CustomEvent("onNewImage", {detail: image}));
         model.getCommentsAt(curr_comment);
     };
 
     model.getLeftImage = function(){
-        var new_index = images[images.indexOf(curr_id) - 1];
-        model.getImageAt(new_index);
+        model.getImageAt(curr_index - 1);
     };
 
     model.getRightImage = function(){
-        var new_index = images[images.indexOf(curr_id) + 1];
-        model.getImageAt(new_index);
+        model.getImageAt(curr_index + 1);
     };
 
     model.getImageAt = function(index){
-        var data = image_storage[index];
-        curr_id = index;
-        if(data){
-            data.has_left = images[images.indexOf(curr_id) - 1] !== undefined;
-            data.has_right = images[images.indexOf(curr_id) + 1] !== undefined;
-
-            document.dispatchEvent(new CustomEvent("onImageRetrieved", {detail: data}));
-            curr_comment = image_storage[index].comments.length - 1;
+        var image = images[index];
+        curr_index = index;
+        if(image){
+            image.has_left = images[index - 1] !== undefined;
+            image.has_right = images[index + 1] !== undefined;
+            document.dispatchEvent(new CustomEvent("onImageRetrieved", {detail: image}));
+            curr_comment = image.comments.length - 1;
             model.getCommentsAt(curr_comment);
         }
         else{
@@ -56,69 +61,69 @@ var model = (function(){
     };
 
     model.deleteImage = function(){
-        var index = images.indexOf(curr_id);
-        
-        //delete the image
-        delete image_storage[curr_id];
-        images.splice(images.indexOf(curr_id), 1);
+        images.splice(curr_index, 1);
         model.save();
 
         //is there an image to the left
-        if(!isNaN(images[index-1])){
-            model.getImageAt(images[index-1]);
+        if(images[curr_index-1]){
+            model.getImageAt(curr_index-1);
         }
 
         //is there an image to the right
-        else if(!isNaN(images[index])){
-            model.getImageAt(images[index]);
+        else if(images[curr_index]){
+            model.getImageAt(curr_index);
         }
         else{
-            curr_id = null;
-            document.dispatchEvent(new CustomEvent("onRemoveImage"));
+            curr_index = -1;
             curr_comment = -1;
+            document.dispatchEvent(new CustomEvent("onRemoveImage"));
         }
     };
 
     model.saveComment = function(data){
-        data.id = image_storage[curr_id].next_comment;
-        image_storage[curr_id].next_comment++;
-        image_storage[curr_id].comments.push(data);
-        curr_comment = image_storage[curr_id].comments.length - 1;
+        data.id = images[curr_index].next_comment;
+        images[curr_index].next_comment++;
+        images[curr_index].comments.push(data);
+        curr_comment = images[curr_index].comments.length - 1;
+
         model.save();
         model.getCommentsAt(curr_comment);
     };
 
     model.getCommentsAt = function(index){
-        var data = [];
-        var comments = image_storage[curr_id].comments;
+        var comments = images[curr_index].comments;
+        var data = comments.filter(function(comment){
+            return (comments.indexOf(comment)>index-10 && comments.indexOf(comment)<=index);
+        });
+
         data.newer_comments = (comments[index+1] !== undefined);
-        for(var i = index; i>index-10; i--){
-            if(i>=0 && i<comments.length){
-                data.push(comments[i]);
-            }
-        }
-        curr_comment = i;
+        curr_comment = index-10;
         data.older_comments = (comments[curr_comment] !== undefined);
         document.dispatchEvent(new CustomEvent("onCommentsRetrieved", {detail: data}));
     };
 
     model.getOlderTen = function(){
+        //curr_comment is the index of the comment one spot older than
+        //the ones currently displayed
         model.getCommentsAt(curr_comment);
     };
 
     model.getNewerTen = function(){
+        //curr_comment+10 will get the same comments that are currently
+        //displayed so curr_comments+20 will get the 10 comments newer
+        //the ones currently displayed
         model.getCommentsAt(curr_comment+20);
     };
 
     model.deleteComment = function(index){
-        image_storage[curr_id].comments.splice(parseInt(index), 1);
+        images[curr_index].comments.splice(parseInt(index), 1);
 
-        var comments = image_storage[curr_id].comments;
+        var comments = images[curr_index].comments;
         for(var i=0; i<comments.length; i++){
             comments[i].id = i;
         }
-        image_storage[curr_id].next_comment = i;
-        curr_comment = image_storage[curr_id].comments.length - 1;
+        images[curr_index].next_comment = i;
+        curr_comment = images[curr_index].comments.length - 1;
         model.save();
         model.getCommentsAt(curr_comment);
     };
@@ -126,7 +131,6 @@ var model = (function(){
     model.save = function(){
         localStorage.setItem("next_id", JSON.stringify(next_id));
         localStorage.setItem("images", JSON.stringify(images));
-        localStorage.setItem("image_storage", JSON.stringify(image_storage));
     };
 
     model.load = function(id){
@@ -143,29 +147,26 @@ var model = (function(){
             images = [];
         }
 
-        //images image_storage
-        image_storage = JSON.parse(localStorage.getItem("image_storage"));
-        if(!image_storage){
-            image_storage = {};
-        }
-
         //if id was not specified in url use first image as default
         if(id === ""){
-            curr_id = images[0];
-            if(curr_id === undefined){
+            if(images[0] === undefined){
                 return;
             }
+            curr_index = 0;
         }
 
         //if the url was formatted properly and the value was a number
         else if((id.slice(0,4) == "?id=") && (!isNaN(parseInt(id.slice(4))))){
-            curr_id = parseInt(id.slice(4));
+            var image = images.find(function(image){
+                return (image.id === parseInt(id.slice(4)));
+            });
+            curr_index = images.indexOf(image);
         }
         else{
-            curr_id = null;
+            curr_index = -1;
         }
 
-        model.getImageAt(curr_id);
+        model.getImageAt(curr_index);
     };
 
 

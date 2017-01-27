@@ -94,10 +94,12 @@ var view = (function(){
 
 
     view.displayImage = function(data){
-        document.getElementById("image").src = data.file;
-        document.getElementById("image").alt = data.title;
-        document.getElementById("image_name").innerHTML = "Title: " + data.title;
-        document.getElementById("author_name").innerHTML = "By: " + data.author;
+
+        document.getElementById("image_stuff").innerHTML = `
+                    <img id="image" src=${data.file} alt=${data.title}>
+                    <label id="image_name">Title: ${data.title}</label>
+                    <label id="author_name">By: ${data.author}</label>`;
+
         document.getElementById("hidden").style.display = "inline";
         history.pushState(null, "", `index.html?id=${data.id}`);
 
@@ -119,10 +121,7 @@ var view = (function(){
     };
 
     view.removeImage = function(){
-        document.getElementById("image").src = "";
-        document.getElementById("image").alt = "";
-        document.getElementById("image_name").innerHTML = "";
-        document.getElementById("author_name").innerHTML = "";
+        document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("hidden").style.display = "none";
         history.pushState(null, "", `index.html`);
     };
@@ -149,7 +148,7 @@ var view = (function(){
                     <div class="message_content">${message}</div>
                     <button type="button" class="btn">Delete</button>`;
 
-            document.getElementById("message_area").append(e);
+            document.getElementById("message_area").prepend(e);
 
             //initialize delete button for the message
             view.setDelete(document.getElementById(id).children[2]);

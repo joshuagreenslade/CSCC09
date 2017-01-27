@@ -24,7 +24,7 @@
     max-height: 600px;
 }
 
-.image_stuff{
+#image_stuff{
     margin-top: 10px;
     display: flex;
     flex-direction: column;
