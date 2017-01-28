@@ -3,11 +3,13 @@
 var view = (function(){
     "use strict";
 
+    //tells the model to load the images from local storage and display the one with the id specified in the url
     window.onload = function(e){
         var id = location.search;
         document.dispatchEvent(new CustomEvent("onPageLoad", {detail: id}));
     };
 
+    //toggles the visibility of the image upload form
     document.getElementById("hide_button").onclick = function(e){
         if(document.getElementById("upload_form").style.display == "none"){
             document.getElementById("upload_form").style.display = "flex";
@@ -17,30 +19,45 @@ var view = (function(){
         }
     };
 
+    //shows the url input and hides the file input when the url radio button is selected
     document.getElementById("url_radio").onclick = function(e){
         document.getElementById("file_input").style.display = "none";
         document.getElementById("url_input").style.display = "inline";
     };
 
+    //shpws the file input and hides the url input when the file radio button is selected
     document.getElementById("file_radio").onclick = function(e){
         document.getElementById("file_input").style.display = "inline";
         document.getElementById("url_input").style.display = "none";
     };
 
+    //gets the input from the form and gets the model to upload it
     document.getElementById("add_image_form").onsubmit = function(e){
         e.preventDefault();
 
         var file;
         var title = document.getElementById("upload_title").value;
         var author = document.getElementById("upload_author").value;
+        var data;
 
+        //make sure title and author inputs are not empty
         if((title !== "") && (author !== "")) {
+
+            //if the file is a url get model to upload it
             if((document.getElementById("url_radio").checked) && (document.getElementById("url_input").value !== "")){
                 file = document.getElementById("url_input").value;
+                data = {file, title, author};
+                document.dispatchEvent(new CustomEvent("onImageUpload", {detail: data}));
             }
+
+            //if file is uploaded get model to convert it to a base64 data url
             else if((document.getElementById("file_radio").checked) && (document.getElementById("file_input").value !== "")){
-                file = window.URL.createObjectURL(document.getElementById("file_input").files[0]);
+                file = document.getElementById("file_input").files[0];
+                data = {file, title, author};
+                document.dispatchEvent(new CustomEvent("onFileUpload", {detail: data}));
             }
+
+            //if no file or url was given
             else{
                 return;
             }
@@ -50,24 +67,25 @@ var view = (function(){
             document.getElementById("upload_author").value = "";
             document.getElementById("file_input").value = "";
             document.getElementById("url_input").value = "";
-
-            var data = {file, title, author};
-            document.dispatchEvent(new CustomEvent("onImageUpload", {detail: data}));
         }
     };
 
+    //tells the model to get the left image
     document.getElementById("left_arrow").onclick = function(e){
         document.dispatchEvent(new CustomEvent("getLeftImage"));
     };
 
+    //tells the model to get the right image
     document.getElementById("right_arrow").onclick = function(e){
         document.dispatchEvent(new CustomEvent("getRightImage"));
     };
 
+    //tells model to delete the image
     document.getElementById("delete_image").onclick = function(e){
         document.dispatchEvent(new CustomEvent("deleteImage"));
     };
 
+    //gets the inputs from the comment form and tells the model to add it to the current image's comments
     document.getElementById("comment_form").onsubmit = function(e){
         e.preventDefault();
 
@@ -76,15 +94,21 @@ var view = (function(){
         var date = new Date().toLocaleDateString();
         var data = {author, message, date};
 
-        document.getElementById("comment_form").reset();
+        //make sure that the comment has an author and a message
+        if((author === "") || (message === "")){
+            return;
+        }
 
+        document.getElementById("comment_form").reset();
         document.dispatchEvent(new CustomEvent("onNewComment", {detail: data}));
     };
 
+    //tells the model to get the 10 newer comments
     document.getElementById("newer_comments").onclick = function(e){
         document.dispatchEvent(new CustomEvent("getNewerComments"));
     };
 
+    //tells the model to get the 10 older comments
     document.getElementById("older_comments").onclick = function(e){
         document.dispatchEvent(new CustomEvent("getOlderComments"));
     };
@@ -93,8 +117,8 @@ var view = (function(){
     var view = {};
 
 
+    //put the image, title, and author from data into the DOM
     view.displayImage = function(data){
-
         document.getElementById("image_stuff").innerHTML = `
                     <img id="image" src=${data.file} alt=${data.title}>
                     <label id="image_name">Title: ${data.title}</label>
@@ -120,17 +144,20 @@ var view = (function(){
         }
     };
 
+    //removes the image from the DOM
     view.removeImage = function(){
         document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("hidden").style.display = "none";
         history.pushState(null, "", `index.html`);
     };
 
+    //puts the comments in data into the DOM
     view.displayComments = function(data){
 
         //remove old comments
         document.getElementById("message_area").innerHTML = "";
 
+        //create a comment element for each comment in data
         for(var i=0; i<data.length; i++){
             var author = data[i].author;
             var message = data[i].message;
@@ -171,6 +198,7 @@ var view = (function(){
         }
     };
 
+    //tells the model to delete the comment
     view.setDelete = function(button){
         button.onclick = function(e){
             var id = button.parentNode.id;
@@ -178,6 +206,7 @@ var view = (function(){
         };
     };
 
+    //sends the user to the 404 page
     view.load404 = function(){
         window.location.href = "404.html";
     };
