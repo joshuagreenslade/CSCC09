@@ -24,9 +24,17 @@ app.use(function (req, res, next){
 // Create
 
 app.put('/api/users/', function (req, res, next) {
-    users.insert({username: req.body.username, picture: null});
-    res.json({username: req.body.username, picture: null});
-    return next();
+    users.findOne({username: req.body.username}, function(err, user){
+        if(user){
+            res.status(409).json("Username:" + user.username + " already exists");
+            return next();
+        }
+        else{
+            users.insert({username: req.body.username, picture: null});
+            res.json({username: req.body.username, picture: null});
+            return next();
+        }
+    });
 });
 
 app.post('/api/messages/', function (req, res, next) {
