@@ -1,0 +1,93 @@
+.arrow{
+    background-size: 50%;
+    height: 600px;
+}
+
+#left_arrow{
+	background-image: url('../media/right-arrow.png');
+    -webkit-transform: scaleX(-1);
+}
+
+#right_arrow{
+	background-image: url('../media/right-arrow.png');
+}
+
+.main_image{
+    display: flex;
+    align-items: center;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+#image{
+    max-width: 600px;
+    max-height: 600px;
+}
+
+#image_stuff{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 650px;
+}
+
+#messages{
+    font-size: 16px;
+    flex-direction: column; 
+}
+
+.message{
+    display:flex;
+    align-items:center;
+    align-items: flex-start;
+    justify-content: space-between;
+    width:100%;
+    margin:auto;
+    margin-top:20px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid grey; 
+    margin-bottom: 5px; 
+}
+
+.message_header{
+    flex-direction: column; 
+    width:100px;
+}
+
+.message_name{
+    padding-top:10px;
+}
+
+.message_content{
+    width:580px;
+    font-size: 24px;
+    margin-bottom: 5px;
+    overflow-x: auto;
+}
+
+#hidden{
+    display: none;
+}
+
+#file_input{
+    display: none;
+}
+
+/* This snippet of code was generated using: http://css3buttongenerator.com/ */
+
+.btn{
+    border-radius:10px;
+    text-align:center;
+    font-size: 20px;
+    color: #3C3D3F;
+    background: #ffffff;
+    border: 2px #3C3D3F solid;
+    padding: 10px 20px 10px 20px;
+}
+
+.btn:hover {
+  background: #3C3D3F;
+  color: #ffffff;
+}
