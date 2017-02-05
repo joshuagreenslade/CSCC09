@@ -3,10 +3,12 @@
 var model = (function(){
     "use strict";
     
-    var curr_id = -1;        //index of the image that is currently displayed
+    var curr_id = null;        //index of the image that is currently displayed
    // var curr_comment = -1;      //which comment is currently at the top 
     var newer_comment = null;
     var older_comment = null;
+    var curr_comment = null;
+    var newest_comment = null;
 
 
     var model = {};
@@ -25,6 +27,7 @@ var model = (function(){
             if (this.readyState === XMLHttpRequest.DONE){
                 curr_id = JSON.parse(this.responseText);
                 model.getImageAt(curr_id)
+                model.getOlderTen();
             }
         };
         xhr.open(method, url, true);
@@ -43,7 +46,11 @@ var model = (function(){
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 var image = JSON.parse(this.responseText);
-                model.getImageAt(image.left);
+                curr_id = image.left;
+                if(curr_id === undefined)
+                    curr_id = null;
+                model.getImageAt(curr_id);
+                model.getOlderTen();
             }
         };
         xhr.open(method, url, true);
@@ -58,7 +65,11 @@ var model = (function(){
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 var image = JSON.parse(this.responseText);
-                model.getImageAt(image.right);
+                curr_id = image.right;
+                if(curr_id === undefined)
+                    curr_id = null;
+                model.getImageAt(curr_id);
+                model.getOlderTen();
             }
         };
         xhr.open(method, url, true);
@@ -80,34 +91,35 @@ var model = (function(){
 
     //tells the view which image it at index in images, redirects to 404 page if there is no image at that index in images
     model.getImageAt = function(id){
+        if(id === undefined)
+            id = null;
+
         var method = "GET";
         var url = "http://localhost:3000/api/images/" + id;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 var image = JSON.parse(this.responseText);
-                if(image){
-                    if(typeof(image.picture) == "string"){
-                        image.path = image.picture;
-                    }
-                    else{
-                        image.path = "http://localhost:3000/api/images/" + id + "/picture";
-                    }
-                    curr_id = image._id;
-                    newer_comment = null
-                    older_comment = null
-//why are the buttons not disapearing or comments not displaying????
-    console.log("blaaaaaaaa")
-                    model.getOlderTen();
-                    document.dispatchEvent(new CustomEvent("onImageRetrieved", {detail: image}));
-        //            curr_comment = image.comments.length - 1;
+                if(this.status !== 404){
+                    if(image){
+                        if(typeof(image.picture) == "string")
+                            image.path = image.picture;
 
+                        else
+                            image.path = "http://localhost:3000/api/images/" + id + "/picture";
+
+                        curr_id = image._id;
+                        newer_comment = null;
+                        older_comment = null;
+
+                        //model.getOlderTen();
+                        document.dispatchEvent(new CustomEvent("onImageRetrieved", {detail: image}));
+                    }
                 }
-                else{
-                    /////////////////////////////////////////////
-                    //check what lab 5 does to display 404 error
-                    /////////////////////////////////////////////
-                }
+                else
+                    //curr_id = null
+                    document.dispatchEvent(new CustomEvent("404", {detail: image}));
+
             }
         };
         xhr.open(method, url, true);
@@ -121,12 +133,12 @@ var model = (function(){
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
-                var next = JSON.parse(this.responseText);
-                if(next !== null){
-                    model.getImageAt(next);
+                curr_id = JSON.parse(this.responseText);
+                if(curr_id !== null){
+                    model.getImageAt(curr_id);
                 }
                 else{
-                    curr_id = -1;
+                    curr_id = null;
                     //curr_comment = -1;
                     document.dispatchEvent(new CustomEvent("onRemoveImage"));
                 }
@@ -150,6 +162,8 @@ var model = (function(){
             if (this.readyState === XMLHttpRequest.DONE){
    //             curr_comment = JSON.parse(this.responseText);
 //console.log("_id: ", curr_comment)
+newest_comment = JSON.parse(this.responseText)
+console.log(newest_comment)
                 model.getComments("http://localhost:3000/api/comments/" + null + "&" + curr_id + "&" + 10 + "&older");
             }
         };
@@ -162,11 +176,6 @@ var model = (function(){
     model.getComments = function(url){
 
 
-
-/////////////////////////////////////////////////////
-//dont reshuffle comment id's after a delete could be thousands of comments
-/////////////////////////////////////////////////////
-console.log(url)
         var method = "GET";
         //var url = "http://localhost:3000/api/comments/" + id + "&" + curr_id + "&" + 10;
         var xhr = new XMLHttpRequest();
@@ -175,16 +184,14 @@ console.log(url)
                 var result = JSON.parse(this.responseText);
                 console.log(result);
                 if(result.length != 0){
-                    console.log("length is not 0")
-                    //curr_comment = result[result.length-1]._id-1;
+                    curr_comment = result[0]._id;
                     newer_comment = result[0].newer_comment;
                     result.newer_comment = newer_comment;
                     older_comment = result[result.length - 1].older_comment;
                     result.older_comment = older_comment;
                 }
                 else{
-                    console.log("length is 0")
-                    //curr_comment = -1;
+                    curr_comment = null;
                     newer_comment = null;
                     result.newer_comment = newer_comment;
                     older_comment = null;
@@ -218,7 +225,6 @@ console.log(url)
         //the ones currently displayed
 console.log(older_comment)
         var url = "http://localhost:3000/api/comments/" + older_comment + "&" + curr_id + "&" + 10 + "&older";
-        console.log(url)
         model.getComments(url);
     };
 
@@ -231,32 +237,27 @@ console.log(older_comment)
 
 console.log(newer_comment)
         var url = "http://localhost:3000/api/comments/" + newer_comment + "&" + curr_id + "&" + 10 + "&newer";
-        console.log(url)
         model.getComments(url);
     };
 
-
-
-
-
-
-///////////////////////////////
-///////////////////////////////
-//start here (delete comment)
-///////////////////////////////
-////////////////////////////////
-
-
-
-
-
-
-/////////////////
-//not fixed yet
-/////////////////
-
     //removes the comment from the image and updates the local storage
-    model.deleteComment = function(index){
+    model.deleteComment = function(id){        
+        var method = "DELETE";
+        var url = "http://localhost:3000/api/comments/" + id + "/"
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+   console.log(this.responseText)
+//   older_comment = null;
+older_comment=curr_comment;
+   model.getOlderTen();
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+
+
+/*
         images[curr_index].comments.splice(parseInt(index), 1);
 
         //reset the id's of each comment
@@ -268,35 +269,18 @@ console.log(newer_comment)
         curr_comment = images[curr_index].comments.length - 1;
         model.save();
         model.getCommentsAt(curr_comment);
+*/
     };
 
-    //save next_id and images to local storage
-    model.save = function(){
-        localStorage.setItem("next_id", JSON.stringify(next_id));
-        localStorage.setItem("images", JSON.stringify(images));
-    };
 
     //gets next_id and images from local storage and gets the image at the id provided
     model.load = function(id){
 
-        //initalize next_id
-  /*      next_id = JSON.parse(localStorage.getItem("next_id"));
-        if(!next_id){
-            next_id = 0;
-        }
 
-        //initialize images array
-        images = JSON.parse(localStorage.getItem("images"));
-        if(!images){
-            images = [];
-        }
-*/
         //if id was not specified in url use first image as default if images is not empty
         if(id === ""){
- //           if(images[0] === undefined){
-   //             return;
-     //       }
-      //      curr_id = 0;
+            model.getImageAt(null);
+            return;
         }
 
         //if the id argurment was formatted properly in the url and the value was a number get the image with that id
@@ -304,12 +288,12 @@ console.log(newer_comment)
             curr_id = id.slice(4);
         }
         else{
-            curr_id = -1;
+            curr_id = -1;   //check
         }
-
-        if(curr_id != -1){
+console.log(curr_id)
+    //    if(curr_id != -1){
             model.getImageAt(curr_id);
-        }
+      //  }
     };
 
 
@@ -317,21 +301,108 @@ console.log(newer_comment)
 ///////////////////////////////////////////////////
 //first get it working with one user only
 /////////////////////////////////////////////////
+model.checkNewestComment = function(){
+    console.log("before")
+    var method = "GET";
+        var url = "http://localhost:3000/api/comments/null&" + curr_id + "&1&older";
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+                var result = JSON.parse(this.responseText);
+                console.log(result);
+                console.log("ahhhhhhhhhhhh")
+                //console.log(result[0]._id, newest_comment)
+                if((result.length == 1) && (result[0]._id != newest_comment)){
+                    older_comment = null;
+                    curr_comment = result[0]._id;
+                    newest_comment = result[0]._id
+                    model.getOlderTen();
+                }
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+        
+};
 
 
 
-/*
     //make sure that what the user sees is up to date
     (function scheduler(){
         setTimeout(function(e){
-            if(curr_id != -1){
             model.getImageAt(curr_id);
-            }
+            model.checkNewestComment();
+            older_comment = curr_comment;
+            model.getOlderTen();
+
+           /* if(curr_id != -1){
+            model.getImageAt(curr_id);
+            }*/
+
             scheduler();
         },2000);
     }());
-*/
+
+
+
+
+
+
+
+
+
+
+//constantly get the current image
+//call getCommentAt(curr_comment)
+//find a way to constantly get the older comments starting with the one at the top
+
+
+
+// element 0 of array returned
+
+
+
+
+//when trying to have multiple users maybe dont refresh the comments everytime
+//maybe only update comments if 203 or something (no change)
+
+
+
 
     return model;
     
 }());
+
+
+
+
+
+
+//seems to work for deleteing images
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+//decide what to do with comments, right now if comment is added by one
+//person  the other person will click newer comment to see the new comment
+//maybe do what you do when a single person deletes (when ever there is an
+//insert or delete reset the comments [look at the newest one])
+//
+//
+//
+//delete sort of works (doesnt pull up comments for user when other user
+//deletes) but if you naviggate to the first comment it will fix itself so
+//the first page has 10 comments
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+
+//check that comments can be navigated seperately and that a delete on one will delete from the other
+//if it doesnt work try after comment delete call getOlderTen on curr_comment, and if that is null call getNewerTen on curr_comment
+
+
+//maybe try if the array returned has < 10 items and the last item.older!=null 
+//wont work

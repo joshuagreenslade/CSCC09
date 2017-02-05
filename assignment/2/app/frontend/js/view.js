@@ -95,7 +95,7 @@ var view = (function(){
 
         //make sure that the comment has an author and a message
         if((author === "") || (message === "")){
- ///////////////           return;
+            return;
         }
 
         document.getElementById("comment_form").reset();
@@ -118,13 +118,15 @@ var view = (function(){
 
     //put the image, title, and author from data into the DOM
     view.displayImage = function(data){
-        console.log(data)
         document.getElementById("image_stuff").innerHTML = `
                     <img id="image" src=${data.path} alt=${data.title}>
                     <label id="image_name">Title: ${data.title}</label>
                     <label id="author_name">By: ${data.author}</label>`;
 
-        document.getElementById("hidden").style.display = "inline";
+        document.getElementById("display").style.display = "inline";
+        document.getElementById("delete_image").style.display = 'inline'
+        document.getElementById("messages").style.display = "inline";
+        document.getElementById("comment_form").style.display = "flex";
         history.pushState(null, "", `index.html?id=${data._id}`);
 
         //if no left image set left arrow's visibility to hidden
@@ -147,7 +149,9 @@ var view = (function(){
     //removes the image from the DOM
     view.removeImage = function(){
         document.getElementById("image_stuff").innerHTML = "";
-        document.getElementById("hidden").style.display = "none";
+        document.getElementById("display").style.display = "none";
+        document.getElementById("messages").style.display = "none";
+        document.getElementById("comment_form").style.display = "none";
         history.pushState(null, "", `index.html`);
     };
 
@@ -162,7 +166,7 @@ var view = (function(){
             var author = data[i].author;
             var message = data[i].message;
             var date = data[i].date;
-            var id = data[i].id;
+            var id = data[i]._id;
 
             var e = document.createElement('div');
             e.className = "message";
@@ -180,7 +184,7 @@ var view = (function(){
             //initialize delete button for the message
             view.setDelete(document.getElementById(id).children[2]);
         }
-console.log(data)
+
         //if there are no newer comments hide the newer comments button
         if(data.newer_comment !== null){
             document.getElementById("newer_comments").style.visibility = "visible";
@@ -206,9 +210,20 @@ console.log(data)
         };
     };
 
-    //sends the user to the 404 page
-    view.load404 = function(){
-        window.location.href = "404.html";
+    //sends the user a 404 message
+    view.send404 = function(message){
+        console.log(message)
+
+        document.getElementById("image_stuff").innerHTML = `
+                    <img id="image" src="/media/404error.png" alt="404 error">
+                    <label id="image_name">${message}</label>`;
+
+        document.getElementById("display").style.display = "inline";
+        document.getElementById("delete_image").style.display = "none"
+
+
+        document.getElementById("messages").style.display = "none";
+        document.getElementById("comment_form").style.display = "none";
     };
 
     return view;

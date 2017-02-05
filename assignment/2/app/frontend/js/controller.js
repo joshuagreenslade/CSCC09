@@ -19,7 +19,8 @@
     });
 
     document.addEventListener("404", function(e){
-        view.load404();
+        var message = e.detail;
+        view.send404(message);
     });
 
 
