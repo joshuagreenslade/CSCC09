@@ -1,4 +1,4 @@
-//var path = require('path');
+var path = require('path');
 var express = require('express');
 var app = express();
 
@@ -20,7 +20,6 @@ app.use(function (req, res, next){
     console.log("HTTP request", req.method, req.url, req.body);
     return next();
 });
-
 
 //initialize counters the first time the server starts
 counters.find({}, function(err, counter){
@@ -57,7 +56,7 @@ app.post('/api/images/', upload.single('picture'), function(req, res, next){
 			//add the image info to the images database
 			images.insert({_id: count, picture: file, title: req.body.title, author: req.body.author, left: left, right: null}, function(err, insert_result){
 				res.json(insert_result._id);
-				next();
+				return next();
 			});
 		});
 	});
@@ -84,7 +83,7 @@ app.post('/api/comments/', function(req, res, next){
 			//add the comment to the comments database
 			comments.insert({_id: count, image_id: image_id, author: req.body.author, message: req.body.message, date: req.body.date, older_comment: older_comment, newer_comment: null}, function(err, insert_result){
 				res.json(insert_result._id);
-				next();
+				return next();
 			});
 		});
 	});
@@ -96,12 +95,21 @@ app.post('/api/comments/', function(req, res, next){
 //stops 404 favicon errors from http://stackoverflow.com/questions/35408729/express-js-prevent-get-favicon-ico
 app.get('/favicon.ico', function(req, res, next) {
     res.sendStatus(204);
-    next();
+    return next();
 });
 
-//gets the image with the given id
+//gets the image data for the image with the given id
 app.get('/api/images/:id', function(req, res, next){
-	var id = JSON.parse(req.params.id);
+	var id;
+
+	//make sure that the id entered is a valid possible image id
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
+		res.status(404).json("Id '" + req.params.id + "' is not a valid number");
+		return next();
+	}
 
 	if(id !== null){
 		//finds the image with _id id
@@ -111,40 +119,65 @@ app.get('/api/images/:id', function(req, res, next){
 			else
 				res.status(404).json("Image with id " + req.params.id + " does not exist");
 
-			next();
+			return next();
 		});
 	}
 	else{
 		//gets the first image
 		images.findOne({}).sort({_id: 1}).exec(function(err, result){
 			res.json(result);
-			next();
+			return next();
 		});
 	}
 });
 
 //gets the picture file with the given id
 app.get('/api/images/:id/picture', function(req, res, next){
-	images.findOne({_id: JSON.parse(req.params.id)}, function(err, result){
+	var id;
+
+	//make sure that the id entered is a valid possible image id
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
+		res.status(404).json("Image with id " + req.params.id + " does not exist");
+		return next();
+	}
+
+	images.findOne({_id: id}, function(err, result){
 		if(result){
-			res.setHeader('Content-Type', result.picture.mimetype);
-	        res.sendFile(path.join(__dirname, result.picture.path));
+			if(typeof(result.picture) == "string")
+				res.json(result.picture);
+			else{
+				res.setHeader('Content-Type', result.picture.mimetype);
+		        res.sendFile(path.join(__dirname, result.picture.path));
+	    	}
     	}
     	else
-            res.status(404).json("Image " + req.params.id + " does not exists");
+            res.status(404).json("Image with id " + req.params.id + " does not exists");
 
-    	next();
+    	return next();
 	});
 });
 
 //gets comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments
 app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, res, next){
+	var firstComment;
+	var imageId;
+	var num;
+	var direction;
 
 	//parameters from url
-	var firstComment = JSON.parse(req.params.firstComment);
-	var imageId = JSON.parse(req.params.imageId);
-	var num = JSON.parse(req.params.num);
-	var direction = req.params.direction;
+	try{
+		firstComment = JSON.parse(req.params.firstComment);
+		imageId = JSON.parse(req.params.imageId);
+		num = JSON.parse(req.params.num);
+		direction = req.params.direction;
+	}
+	catch(e){
+		res.status(404).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId +", " + req.params.num + " must be null or numbers with no leading zeros");
+		return next();
+	}
 
 	//default database query that will get the comments in order from newest to oldest
 	var query = {image_id: imageId};
@@ -167,9 +200,10 @@ app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, re
 		else
 			res.json(result);
 
-		next();
+		return next();
 	});	
 });
+
 
 //update
 
@@ -180,9 +214,19 @@ app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, re
 
 //deletes the image with the given id
 app.delete('/api/images/:id', function(req, res, next){
+	var id;
+
+	//make sure that the id entered is a valid possible image id
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
+		res.status(404).json("Image with id " + req.params.id + " does not exist");
+		return next();
+	}
 
 	//get the image to be deleted
-	images.findOne({_id: JSON.parse(req.params.id)}, function(err, result){
+	images.findOne({_id: id}, function(err, result){
 		if(result){
 
 			//find the next image's id
@@ -206,42 +250,54 @@ app.delete('/api/images/:id', function(req, res, next){
 				}
 			});
 
-			images.remove({_id: JSON.parse(req.params.id)});
+			images.remove({_id: id});
 			res.json(next_id);
 		}
 		else
             res.status(404).json("Image " + req.params.id + " does not exists");
 		
-		next();
+		return next();
 	});
 });
 
 //deletes the comment with the given id
 app.delete('/api/comments/:id', function(req, res, next){
-	var id = JSON.parse(req.params.id);
+	var id;
+
+	//make sure that the id entered is a valid possible image id
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
+		res.status(404).json("Comment with id " + req.params.id + " does not exist");
+		return next();
+	}
 	
 	//get the comment to be deleted
 	comments.findOne({_id: id}, function(err, comment){
+		if(comment){
+			//update the older_comment's newer_comment link
+			comments.findOne({_id: comment.older_comment}, function(err, older_comment){
+				if(older_comment){
+						older_comment.newer_comment = comment.newer_comment;
+						comments.update({_id: older_comment._id}, older_comment);
+					}
+			});
 
-		//update the older_comment's newer_comment link
-		comments.findOne({_id: comment.older_comment}, function(err, older_comment){
-			if(older_comment){
-					older_comment.newer_comment = comment.newer_comment;
-					comments.update({_id: older_comment._id}, older_comment);
+			//update the newer_comment's older_comment link
+			comments.findOne({_id: comment.newer_comment}, function(err, newer_comment){
+				if(newer_comment){
+					newer_comment.older_comment = comment.older_comment;
+					comments.update({_id: newer_comment._id}, newer_comment);
 				}
-		});
+			});
 
-		//update the newer_comment's older_comment link
-		comments.findOne({_id: comment.newer_comment}, function(err, newer_comment){
-			if(newer_comment){
-				newer_comment.older_comment = comment.older_comment;
-				comments.update({_id: newer_comment._id}, newer_comment);
-			}
-		});
-
-		comments.remove({_id: comment._id});
-		res.json(comment);
-		next();	
+			comments.remove({_id: comment._id});
+			res.json(id);
+			return next();
+		}
+		else
+            res.status(404).json("Comment with id " + id + " does not exists");
 	});
 });
 

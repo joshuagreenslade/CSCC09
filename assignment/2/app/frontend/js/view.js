@@ -3,7 +3,7 @@
 var view = (function(){
     "use strict";
 
-    //tells the model to load the images from local storage and display the one with the id specified in the url
+    //passes the arguments entered in the url to the model
     window.onload = function(e){
         var id = location.search;
         document.dispatchEvent(new CustomEvent("onPageLoad", {detail: id}));
@@ -116,6 +116,8 @@ var view = (function(){
     var view = {};
 
 
+    //image methods
+
     //put the image, title, and author from data into the DOM
     view.displayImage = function(data){
         document.getElementById("image_stuff").innerHTML = `
@@ -124,7 +126,7 @@ var view = (function(){
                     <label id="author_name">By: ${data.author}</label>`;
 
         document.getElementById("display").style.display = "inline";
-        document.getElementById("delete_image").style.display = 'inline'
+        document.getElementById("delete_image").style.display = 'inline';
         document.getElementById("messages").style.display = "inline";
         document.getElementById("comment_form").style.display = "flex";
         history.pushState(null, "", `index.html?id=${data._id}`);
@@ -154,6 +156,9 @@ var view = (function(){
         document.getElementById("comment_form").style.display = "none";
         history.pushState(null, "", `index.html`);
     };
+
+
+    //comment methods
 
     //puts the comments in data into the DOM
     view.displayComments = function(data){
@@ -212,18 +217,21 @@ var view = (function(){
 
     //sends the user a 404 message
     view.send404 = function(message){
-        console.log(message)
-
         document.getElementById("image_stuff").innerHTML = `
                     <img id="image" src="/media/404error.png" alt="404 error">
-                    <label id="image_name">${message}</label>`;
+                    <label id="image_name">${message}</label>
+                    <button type="button" class="btn" id="return_to_start">Return To Start Of Gallery</button>`;
+
+        document.getElementById("return_to_start").onclick = function(e){
+            document.dispatchEvent(new CustomEvent("returnToStart"));
+        };
 
         document.getElementById("display").style.display = "inline";
-        document.getElementById("delete_image").style.display = "none"
-
-
+        document.getElementById("delete_image").style.display = "none";
         document.getElementById("messages").style.display = "none";
         document.getElementById("comment_form").style.display = "none";
+        document.getElementById("right_arrow").style.visibility = "hidden";
+        document.getElementById("left_arrow").style.visibility = "hidden";
     };
 
     return view;

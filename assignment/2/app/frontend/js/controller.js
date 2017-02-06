@@ -26,21 +26,30 @@
 
     //view dispatched events
 
+    document.addEventListener("onPageLoad", function(e){
+        var id = e.detail;
+        model.load(id);
+    });
+
     document.addEventListener("onImageUpload", function(e){
         var data = e.detail;
         model.uploadImage(data);
-    });
-
-    document.addEventListener("getRightImage", function(e){
-        model.getRightImage();
     });
 
     document.addEventListener("getLeftImage", function(e){
         model.getLeftImage();
     });
 
+    document.addEventListener("getRightImage", function(e){
+        model.getRightImage();
+    });
+
     document.addEventListener("deleteImage", function(e){
         model.deleteImage();
+    });
+
+    document.addEventListener("returnToStart", function(e){
+        model.returnToStart();
     });
 
     document.addEventListener("onNewComment", function(e){
@@ -48,22 +57,17 @@
         model.saveComment(data);
     });
 
-    document.addEventListener("getNewerComments", function(e){
-        model.getNewerTen();
-    });
-
     document.addEventListener("getOlderComments", function(e){
         model.getOlderTen();
+    });
+
+    document.addEventListener("getNewerComments", function(e){
+        model.getNewerTen();
     });
 
     document.addEventListener("onDeleteComment", function(e){
         var id = e.detail;
         model.deleteComment(id);
-    });
-
-    document.addEventListener("onPageLoad", function(e){
-        var id = e.detail;
-        model.load(id);
     });
 
 }(model, view));
