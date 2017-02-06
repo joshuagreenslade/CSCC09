@@ -18,9 +18,9 @@
         view.displayComments(data);
     });
 
-    document.addEventListener("404", function(e){
+    document.addEventListener("error", function(e){
         var message = e.detail;
-        view.send404(message);
+        view.sendError(message);
     });
 
 

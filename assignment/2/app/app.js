@@ -107,7 +107,7 @@ app.get('/api/images/:id', function(req, res, next){
 		id = JSON.parse(req.params.id);
 	}
 	catch(e){
-		res.status(404).json("Id '" + req.params.id + "' is not a valid number");
+		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 
@@ -140,7 +140,7 @@ app.get('/api/images/:id/picture', function(req, res, next){
 		id = JSON.parse(req.params.id);
 	}
 	catch(e){
-		res.status(404).json("Image with id " + req.params.id + " does not exist");
+		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 
@@ -175,7 +175,7 @@ app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, re
 		direction = req.params.direction;
 	}
 	catch(e){
-		res.status(404).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId +", " + req.params.num + " must be null or numbers with no leading zeros");
+		res.status(400).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId +", " + req.params.num + " must be null or numbers with no leading zeros");
 		return next();
 	}
 
@@ -221,7 +221,7 @@ app.delete('/api/images/:id', function(req, res, next){
 		id = JSON.parse(req.params.id);
 	}
 	catch(e){
-		res.status(404).json("Image with id " + req.params.id + " does not exist");
+		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 
@@ -269,7 +269,7 @@ app.delete('/api/comments/:id', function(req, res, next){
 		id = JSON.parse(req.params.id);
 	}
 	catch(e){
-		res.status(404).json("Comment with id " + req.params.id + " does not exist");
+		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 	

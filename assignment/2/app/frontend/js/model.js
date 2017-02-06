@@ -41,7 +41,7 @@ var model = (function(){
         else{
             var message = id + " is not a valid argument should be ?id=(number)";
             curr_id = id;
-            document.dispatchEvent(new CustomEvent("404", {detail: message}));
+            document.dispatchEvent(new CustomEvent("error", {detail: message}));
         }
     };
 
@@ -106,7 +106,7 @@ var model = (function(){
         xhr.send(null);
     };
 
-    //gets the image with the given id, gives 404 message if there is no image with that id
+    //gets the image with the given id, gives an error message if there is no image with that id
     model.getImageAt = function(id){
         if(id === undefined)
             id = null;
@@ -117,7 +117,7 @@ var model = (function(){
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 var image = JSON.parse(this.responseText);
-                if(this.status !== 404){
+                if(this.status < 400){
                     if(image){
                         if(typeof(image.picture) == "string")
                             image.path = image.picture;
@@ -131,7 +131,7 @@ var model = (function(){
                     }
                 }
                 else
-                    document.dispatchEvent(new CustomEvent("404", {detail: image}));
+                    document.dispatchEvent(new CustomEvent("error", {detail: image}));
             }
         };
         xhr.open(method, url, true);

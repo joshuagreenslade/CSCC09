@@ -215,8 +215,8 @@ var view = (function(){
         };
     };
 
-    //sends the user a 404 message
-    view.send404 = function(message){
+    //sends the user an error message
+    view.sendError = function(message){
         document.getElementById("image_stuff").innerHTML = `
                     <img id="image" src="/media/404error.png" alt="404 error">
                     <label id="image_name">${message}</label>
