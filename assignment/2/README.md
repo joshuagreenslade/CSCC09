@@ -67,6 +67,8 @@ $ curl -X POST
       - author: (string) the image's author
       - left: (int) the id of the image to the left
       - right: (int) the id of the image to the right
+- response: 400
+    - body: Id 'id' is not a valid number
 - response: 404
     - body: Image with id id no longer exist
  
@@ -82,6 +84,8 @@ $ curl http://localhsot:3000/api/images/0
 - response: 200
     - content-type: `application/json`
     - body: (string) the url for the picture
+- response: 400
+    - body: Id 'id' is not a valid number
 - response: 404
     - body: Image id does not exist
  
@@ -104,6 +108,9 @@ $ curl http://localhsot:3000/api/images/0/picture
       - date: (string) the date the comment was added
       - older_comment: (int) the id of the comment added before this one
       - newer_comment: (int) the id of the comment added after this one
+- response: 400
+    - body: Invalid arguments. firstComment, imageId, num must be null or numbers with no leading zeros
+
  
 ``` 
 $ curl 'http://localhsot:3000/api/comments/0/0/1/older'
@@ -117,6 +124,8 @@ $ curl 'http://localhsot:3000/api/comments/0/0/1/older'
 - response: 200
     - content-type: `application/json`
     - body: (int) the id of the next image
+- response: 400
+    - body: Id 'id' is not a valid number
 - response: 404
     - body: Image id does not exists
 
@@ -133,6 +142,8 @@ $ curl -X DELETE
 - response: 200
     - content-type: `application/json`
     - body: (int) the id of the comment deleted
+- response: 400
+    - body: Id 'id' is not a valid number
 - response: 404
     - body: Comment id does not exists
 

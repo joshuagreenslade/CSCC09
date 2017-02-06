@@ -170,7 +170,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-The api willreturn an error codes if the user entered an invalid argument.
+The api will return an error codes if the user entered an invalid argument. I am fairly certain that I returned the correct error codes.
 ```
 
 ## Integrating the frontend
@@ -248,7 +248,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-I was not sure if I should have had seperate methods for uploading a file and uploading a url file or not, but in the end I decided not to. So in the documentation some of the methods have an option between a file or a url.
+I was not sure if I should have had seperate methods for uploading a file and uploading a url file or not, but in the end I decided not to. So in the documentation some of the methods have an option to use a file or a url.
 ```
 
 ## Code quality and organization
@@ -287,5 +287,5 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-I was not sure if the backend should display the HTTP requests and responses or not so I included them anyways.
+I was not sure if the backend should display the HTTP requests and responses or not so I included them anyways. So the console in the frontend and the backend display error messages that I generated (eg. 400, 404 errors) by doing res.status(4xx).json("...") in app.js
 ```
