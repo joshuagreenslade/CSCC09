@@ -65,6 +65,7 @@ var checkAuthentication = function(req, res, next){
 // signin, signout
 
 app.delete('/signout/', function (req, res, next) {
+    session.user = null;
     res.end();
 });
 
