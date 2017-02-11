@@ -71,7 +71,7 @@ var model = (function(){
     //gets the image to the left of the current one
     model.getLeftImage = function(){
         var method = "GET";
-        var url = "http://localhost:3000/api/images/" + curr_id;
+        var url = "http://localhost:3000/api/images/" + curr_id + "/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -90,7 +90,7 @@ var model = (function(){
     //gets the image to the right of the current one
     model.getRightImage = function(){
         var method = "GET";
-        var url = "http://localhost:3000/api/images/" + curr_id;
+        var url = "http://localhost:3000/api/images/" + curr_id + "/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -112,7 +112,7 @@ var model = (function(){
             id = null;
 
         var method = "GET";
-        var url = "http://localhost:3000/api/images/" + id;
+        var url = "http://localhost:3000/api/images/" + id + "/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -122,7 +122,7 @@ var model = (function(){
                         if(typeof(image.picture) == "string")
                             image.path = image.picture;
                         else
-                            image.path = "http://localhost:3000/api/images/" + id + "/picture";
+                            image.path = "http://localhost:3000/api/images/" + id + "/picture/";
 
                         curr_id = image._id;
                         newer_comment = null;
@@ -141,7 +141,7 @@ var model = (function(){
     //deletes the image and gets the left or right image if there is one
     model.deleteImage = function(){
         var method = "Delete";
-        var url = "http://localhost:3000/api/images/" + curr_id;
+        var url = "http://localhost:3000/api/images/" + curr_id + "/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -177,7 +177,7 @@ var model = (function(){
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 newest_comment = JSON.parse(this.responseText);
-                model.getComments("http://localhost:3000/api/comments/" + null + "&" + curr_id + "&" + 10 + "&older");
+                model.getComments("http://localhost:3000/api/" + curr_id + "/comments/" + null + "/" + 10 + "/older/");
             }
         };
         xhr.open(method, url, true);
@@ -217,20 +217,20 @@ var model = (function(){
 
     //gets the next 10 older comments
     model.getOlderTen = function(){
-        var url = "http://localhost:3000/api/comments/" + older_comment + "&" + curr_id + "&" + 10 + "&older";
+        var url = "http://localhost:3000/api/"+ curr_id + "/comments/" + older_comment + "/" + 10 + "/older/";
         model.getComments(url);
     };
 
     //gets the next 10 newer comments
     model.getNewerTen = function(){
-        var url = "http://localhost:3000/api/comments/" + newer_comment + "&" + curr_id + "&" + 10 + "&newer";
+        var url = "http://localhost:3000/api/" + curr_id + "/comments/" + newer_comment + "/" + 10 + "/newer/";
         model.getComments(url);
     };
 
     //deletes the comment with the id specified
     model.deleteComment = function(id){        
         var method = "DELETE";
-        var url = "http://localhost:3000/api/comments/" + id;
+        var url = "http://localhost:3000/api/comments/" + id + "/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -245,7 +245,7 @@ var model = (function(){
     //checks that a new comment hasn't been added, and if there was display it
     model.checkNewestComment = function(){
         var method = "GET";
-        var url = "http://localhost:3000/api/comments/null&" + curr_id + "&1&older";
+        var url = "http://localhost:3000/api/" + curr_id + "/comments/null/1/older/";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){

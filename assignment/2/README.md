@@ -55,7 +55,7 @@ $ curl -X POST
 ### Read
 
 - description: retrieve the image data for the image with the given id
-- request: `GET /api/images/:id`
+- request: `GET /api/images/:id/`
 - response: 200
     - content-type: `application/json`
     - body: Object
@@ -73,7 +73,7 @@ $ curl -X POST
     - body: Image with id id no longer exist
  
 ``` 
-$ curl http://localhsot:3000/api/images/0
+$ curl http://localhsot:3000/api/images/0/
 ``` 
 
 
@@ -90,14 +90,14 @@ $ curl http://localhsot:3000/api/images/0
     - body: Image id does not exist
  
 ``` 
-$ curl http://localhsot:3000/api/images/0/picture
+$ curl http://localhsot:3000/api/images/0/picture/
 ``` 
   
 
 ### Read
 
 - description: retrieve the comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments
-- request: `GET /api/comments/:firstComment&:imageId&:num&:direction`  
+- request: `GET /api/:imageId/comments/:firstComment/:num/:direction/`  
 - response: 200
     - content-type: `application/json`
     - body: list of objects
@@ -109,11 +109,11 @@ $ curl http://localhsot:3000/api/images/0/picture
       - older_comment: (int) the id of the comment added before this one
       - newer_comment: (int) the id of the comment added after this one
 - response: 400
-    - body: Invalid arguments. firstComment, imageId, num must be null or numbers with no leading zeros
+    - body: Invalid arguments. imageId, firstComment, num must be null or numbers with no leading zeros
 
  
 ``` 
-$ curl 'http://localhsot:3000/api/comments/0/0/1/older'
+$ curl 'http://localhsot:3000/api/0/comments/0/1/older/'
 ``` 
 
   
@@ -131,7 +131,7 @@ $ curl 'http://localhsot:3000/api/comments/0/0/1/older'
 
 ``` 
 $ curl -X DELETE
-       http://localhsot:3000/api/images/0
+       http://localhsot:3000/api/images/0/
 ``` 
 
 
@@ -149,5 +149,5 @@ $ curl -X DELETE
 
 ``` 
 $ curl -X DELETE
-       http://localhsot:3000/api/comments/0
+       http://localhsot:3000/api/comments/0/
 ``` 

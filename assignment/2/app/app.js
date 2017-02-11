@@ -99,7 +99,7 @@ app.get('/favicon.ico', function(req, res, next) {
 });
 
 //gets the image data for the image with the given id
-app.get('/api/images/:id', function(req, res, next){
+app.get('/api/images/:id/', function(req, res, next){
 	var id;
 
 	//make sure that the id entered is a valid possible image id
@@ -132,7 +132,7 @@ app.get('/api/images/:id', function(req, res, next){
 });
 
 //gets the picture file with the given id
-app.get('/api/images/:id/picture', function(req, res, next){
+app.get('/api/images/:id/picture/', function(req, res, next){
 	var id;
 
 	//make sure that the id entered is a valid possible image id
@@ -161,7 +161,7 @@ app.get('/api/images/:id/picture', function(req, res, next){
 });
 
 //gets comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments
-app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, res, next){
+app.get('/api/:imageId/comments/:firstComment/:num/:direction/', function(req, res, next){
 	var firstComment;
 	var imageId;
 	var num;
@@ -213,7 +213,7 @@ app.get('/api/comments/:firstComment&:imageId&:num&:direction', function(req, re
 //delete
 
 //deletes the image with the given id
-app.delete('/api/images/:id', function(req, res, next){
+app.delete('/api/images/:id/', function(req, res, next){
 	var id;
 
 	//make sure that the id entered is a valid possible image id
@@ -261,7 +261,7 @@ app.delete('/api/images/:id', function(req, res, next){
 });
 
 //deletes the comment with the given id
-app.delete('/api/comments/:id', function(req, res, next){
+app.delete('/api/comments/:id/', function(req, res, next){
 	var id;
 
 	//make sure that the id entered is a valid possible image id
