@@ -95,7 +95,7 @@ I hereby declared that the work submitted here is mine and its production compli
     In the box below, write down the features that you were not able to implement or make it work properly:  
     **Comments**
     ```
-    I was not sure how to get the next older or newer comments without passing an argument that specified which one.
+    I was not sure how to get the next older or newer comments without passing a sort argument that specifies which way to sort the comments.
     ```
     
 1. The API support for deleting comments: [select one]
@@ -122,7 +122,7 @@ I hereby declared that the work submitted here is mine and its production compli
     In the box below, write down the issues with the API:
     **Comments**
     ```
-    I am not sure if adding a direction argument to the get comments method violates REST principles or not.
+    No issues.
     ```    
 
 1. Data storage: [select one]
@@ -248,7 +248,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-I was not sure if I should have had seperate methods for uploading a file and uploading a url file or not, but in the end I decided not to. So in the documentation some of the methods have an option to use a file or a url.
+I was not sure how to specify in the documentation that some of the methods have an option to use a file or a url.
 ```
 
 ## Code quality and organization

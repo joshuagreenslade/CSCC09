@@ -73,7 +73,7 @@ $ curl -X POST
     - body: Image with id id no longer exist
  
 ``` 
-$ curl http://localhsot:3000/api/images/0/
+$ curl http://localhost:3000/api/images/0/
 ``` 
 
 
@@ -90,14 +90,14 @@ $ curl http://localhsot:3000/api/images/0/
     - body: Image id does not exist
  
 ``` 
-$ curl http://localhsot:3000/api/images/0/picture/
+$ curl http://localhost:3000/api/images/0/picture/
 ``` 
   
 
 ### Read
 
-- description: retrieve the comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments. If limit is not provided then all comments for the given image are returned and if direction is not provided then older is assumed.
-- request: `GET /api/:imageId/comments/:firstComment/[?limit=num&direction=direction]`  
+- description: retrieve the comments for the image with 'imageId', starting at 'firstComment' where the comments are sorted as specified until limit is reached. The default for limit is 10 and the default for sort is decreasing.
+- request: `GET /api/:imageId/comments/:firstComment/[?limit=10&sort=decreasing]`  
 - response: 200
     - content-type: `application/json`
     - body: list of objects
@@ -113,10 +113,10 @@ $ curl http://localhsot:3000/api/images/0/picture/
 - response: 400
     - body: Invalid arguments. Limit must be a number and num is not
 - response: 400
-    - body: Invalid arguments. Direction must be a older or newer and direction is not
+    - body: Invalid arguments. Sort must be a decreasing or increasing and sort is not
  
 ``` 
-$ curl 'http://localhsot:3000/api/0/comments/0/?limit=1&direction=older'
+$ curl 'http://localhost:3000/api/images/0/comments/0/?limit=1&sort=decreasing'
 ``` 
 
   
@@ -134,7 +134,7 @@ $ curl 'http://localhsot:3000/api/0/comments/0/?limit=1&direction=older'
 
 ``` 
 $ curl -X DELETE
-       http://localhsot:3000/api/images/0/
+       http://localhost:3000/api/images/0/
 ``` 
 
 
@@ -152,5 +152,5 @@ $ curl -X DELETE
 
 ``` 
 $ curl -X DELETE
-       http://localhsot:3000/api/comments/0/
+       http://localhost:3000/api/comments/0/
 ``` 

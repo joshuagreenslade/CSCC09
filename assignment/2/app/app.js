@@ -30,7 +30,7 @@ counters.find({}, function(err, counter){
 });
 
 
-//create
+//Create
 
 //adds the image info to the image database, and if picture is a file upload it
 app.post('/api/images/', upload.single('picture'), function(req, res, next){
@@ -90,7 +90,7 @@ app.post('/api/comments/', function(req, res, next){
 });
 
 
-//read
+//Read
 
 //stops 404 favicon errors from http://stackoverflow.com/questions/35408729/express-js-prevent-get-favicon-ico
 app.get('/favicon.ico', function(req, res, next) {
@@ -160,12 +160,13 @@ app.get('/api/images/:id/picture/', function(req, res, next){
 	});
 });
 
-//gets comments for the image with 'imageId', starting at 'firstComment' and if a limit was provided stopping after that number and in the direction given, if one was provided
-app.get('/api/:imageId/comments/:firstComment/', function(req, res, next){
+//gets comments for the image with 'imageId', starting at 'firstComment' where the comments are sorted as specified and stopping after limit is reached
+//the default for limit is 10 and the default for sort is decreasing
+app.get('/api/images/:imageId/comments/:firstComment/', function(req, res, next){
 	var firstComment;
 	var imageId;
 	var limit = req.query.limit;
-	var direction = req.query.direction;
+	var sort = req.query.sort;
 
 	//parameters from url
 	try{
@@ -177,33 +178,37 @@ app.get('/api/:imageId/comments/:firstComment/', function(req, res, next){
 		return next();
 	}
 
-	//make sure that if limit or direction was provided that they are valid
-	if(isNaN(limit) && (limit !== undefined)){
+	//make sure that if limit or sort was provided that they are valid
+	if(limit === undefined)
+		limit = 10;
+	else if(isNaN(limit)){
 		res.status(400).json("Invalid arguments. Limit must be a number and " + limit + " is not")
 		return next();
 	}
-	if((direction !== "older") && (direction !== "newer") && (direction !== undefined)){
-		res.status(400).json("Invalid arguments. Direction must be a older or newer and " + direction + " is not")
+	if(sort === undefined)
+		sort = "decreasing";
+	else if((sort !== "decreasing") && (sort !== "increasing")){
+		res.status(400).json("Invalid arguments. Sort must be a decreasing or increasing and " + sort + " is not")
 		return next();
 	}
 
-	//default database query that will get the comments in order from newest to oldest
+	//default database query that will get the comments in decreasing order
 	var query = {image_id: imageId};
 	var order = {_id: -1};
 
-	//modify the query to get the comments equal to or older than the firstComment
-	if((direction == "older") && (firstComment !== null))
+	//modify the query to get the comments whose id is less than or equal to the firstComment's id
+	if((sort == "decreasing") && (firstComment !== null))
 		query._id = {$lte: firstComment};
 
-	//modify the query to get the comments equal to or newer than the firstComment
-	else if((direction == "newer") && (firstComment !== null)){
+	//modify the query to get the comments whose id is greater than or equal to the firstComment's id
+	else if((sort == "increasing") && (firstComment !== null)){
 		query._id = {$gte: firstComment};
 		order._id = 1;
 	}
 
-	//get at most 'num' comments resulting from the query
+	//get comments resulting from the query, stopping after limit is reached
 	comments.find(query).sort(order).limit(limit).exec(function(err, result){
-		if((direction == "newer") && (firstComment !== null))
+		if((sort == "increasing") && (firstComment !== null))
 			res.json(result.reverse());
 		else
 			res.json(result);
@@ -213,12 +218,12 @@ app.get('/api/:imageId/comments/:firstComment/', function(req, res, next){
 });
 
 
-//update
+//Update
 
 //api does not currently support update
 
 
-//delete
+//Delete
 
 //deletes the image with the given id
 app.delete('/api/images/:id/', function(req, res, next){
