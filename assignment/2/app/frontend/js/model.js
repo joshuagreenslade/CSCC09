@@ -177,7 +177,7 @@ var model = (function(){
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 newest_comment = JSON.parse(this.responseText);
-                model.getComments("http://localhost:3000/api/" + curr_id + "/comments/" + null + "/" + 10 + "/older/");
+                model.getComments("http://localhost:3000/api/" + curr_id + "/comments/" + null + "/?limit=" + 10 + "&direction=older");
             }
         };
         xhr.open(method, url, true);
@@ -217,13 +217,13 @@ var model = (function(){
 
     //gets the next 10 older comments
     model.getOlderTen = function(){
-        var url = "http://localhost:3000/api/"+ curr_id + "/comments/" + older_comment + "/" + 10 + "/older/";
+        var url = "http://localhost:3000/api/"+ curr_id + "/comments/" + older_comment + "/?limit=" + 10 + "&direction=older";
         model.getComments(url);
     };
 
     //gets the next 10 newer comments
     model.getNewerTen = function(){
-        var url = "http://localhost:3000/api/" + curr_id + "/comments/" + newer_comment + "/" + 10 + "/newer/";
+        var url = "http://localhost:3000/api/" + curr_id + "/comments/" + newer_comment + "/?limit=" + 10 + "&direction=newer";
         model.getComments(url);
     };
 
@@ -245,7 +245,7 @@ var model = (function(){
     //checks that a new comment hasn't been added, and if there was display it
     model.checkNewestComment = function(){
         var method = "GET";
-        var url = "http://localhost:3000/api/" + curr_id + "/comments/null/1/older/";
+        var url = "http://localhost:3000/api/" + curr_id + "/comments/null/?limit=1&direction=older";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){

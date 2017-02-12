@@ -82,7 +82,7 @@ I hereby declared that the work submitted here is mine and its production compli
     In the box below, write down the features that you were not able to implement or make it work properly:  
     **Comments**
     ```
-    All features are implemented properly. 
+    All features are implemented properly.
     ```
     
 1. The API support for retrieving comments: [select one]
@@ -95,7 +95,7 @@ I hereby declared that the work submitted here is mine and its production compli
     In the box below, write down the features that you were not able to implement or make it work properly:  
     **Comments**
     ```
-    All features are implemented properly.
+    I was not sure how to get the next older or newer comments without passing an argument that specified which one.
     ```
     
 1. The API support for deleting comments: [select one]
@@ -122,7 +122,7 @@ I hereby declared that the work submitted here is mine and its production compli
     In the box below, write down the issues with the API:
     **Comments**
     ```
-    No issues.
+    I am not sure if adding a direction argument to the get comments method violates REST principles or not.
     ```    
 
 1. Data storage: [select one]

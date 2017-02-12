@@ -160,22 +160,30 @@ app.get('/api/images/:id/picture/', function(req, res, next){
 	});
 });
 
-//gets comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments
-app.get('/api/:imageId/comments/:firstComment/:num/:direction/', function(req, res, next){
+//gets comments for the image with 'imageId', starting at 'firstComment' and if a limit was provided stopping after that number and in the direction given, if one was provided
+app.get('/api/:imageId/comments/:firstComment/', function(req, res, next){
 	var firstComment;
 	var imageId;
-	var num;
-	var direction;
+	var limit = req.query.limit;
+	var direction = req.query.direction;
 
 	//parameters from url
 	try{
 		firstComment = JSON.parse(req.params.firstComment);
 		imageId = JSON.parse(req.params.imageId);
-		num = JSON.parse(req.params.num);
-		direction = req.params.direction;
 	}
 	catch(e){
-		res.status(400).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId +", " + req.params.num + " must be null or numbers with no leading zeros");
+		res.status(400).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId + " must be null or numbers with no leading zeros");
+		return next();
+	}
+
+	//make sure that if limit or direction was provided that they are valid
+	if(isNaN(limit) && (limit !== undefined)){
+		res.status(400).json("Invalid arguments. Limit must be a number and " + limit + " is not")
+		return next();
+	}
+	if((direction !== "older") && (direction !== "newer") && (direction !== undefined)){
+		res.status(400).json("Invalid arguments. Direction must be a older or newer and " + direction + " is not")
 		return next();
 	}
 
@@ -194,7 +202,7 @@ app.get('/api/:imageId/comments/:firstComment/:num/:direction/', function(req, r
 	}
 
 	//get at most 'num' comments resulting from the query
-	comments.find(query).sort(order).limit(num).exec(function(err, result){
+	comments.find(query).sort(order).limit(limit).exec(function(err, result){
 		if((direction == "newer") && (firstComment !== null))
 			res.json(result.reverse());
 		else

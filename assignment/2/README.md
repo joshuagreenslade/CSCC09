@@ -96,8 +96,8 @@ $ curl http://localhsot:3000/api/images/0/picture/
 
 ### Read
 
-- description: retrieve the comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments
-- request: `GET /api/:imageId/comments/:firstComment/:num/:direction/`  
+- description: retrieve the comments for the image with 'imageId', starting at 'firstComment' and getting either the next 'num' older or newer comments. If limit is not provided then all comments for the given image are returned and if direction is not provided then older is assumed.
+- request: `GET /api/:imageId/comments/:firstComment/[?limit=num&direction=direction]`  
 - response: 200
     - content-type: `application/json`
     - body: list of objects
@@ -109,11 +109,14 @@ $ curl http://localhsot:3000/api/images/0/picture/
       - older_comment: (int) the id of the comment added before this one
       - newer_comment: (int) the id of the comment added after this one
 - response: 400
-    - body: Invalid arguments. imageId, firstComment, num must be null or numbers with no leading zeros
-
+    - body: Invalid arguments. imageId, firstComment must be null or numbers with no leading zeros
+- response: 400
+    - body: Invalid arguments. Limit must be a number and num is not
+- response: 400
+    - body: Invalid arguments. Direction must be a older or newer and direction is not
  
 ``` 
-$ curl 'http://localhsot:3000/api/0/comments/0/1/older/'
+$ curl 'http://localhsot:3000/api/0/comments/0/?limit=1&direction=older'
 ``` 
 
   
