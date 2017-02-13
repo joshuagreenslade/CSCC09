@@ -3,10 +3,10 @@
 var model = (function(){
     "use strict";
     
-    var curr_id = "first";      //id of the image that is currently displayed
+    var curr_id = null;         //id of the image that is currently displayed
     var newer_comment = null;   //id of the next newer comment
     var older_comment = null;   //id of the next older comment
-    var curr_comment = "last";    //id of the top comment that is being displayed
+    var curr_comment = null;    //id of the newest comment that is being displayed
     var newest_comment = null;  //id of the newest comment for the current image
 
 
@@ -31,7 +31,7 @@ var model = (function(){
 
         //if id was not specified in url use first image as default if there is one
         if(id === ""){
-            model.getImageAt("first");
+            model.getImageAt(null);
         }
 
         //if the id argurment was formatted properly in the url and the value was a number get the image with that id
@@ -48,8 +48,7 @@ var model = (function(){
 
     //gets the first image in the gallery
     model.returnToStart = function(){
-        model.getImageAt("first");
-        model.getOlderTen();
+        model.getImageAt(null);
     };
 
 
@@ -77,14 +76,15 @@ var model = (function(){
 
     //adds the comment to the image that is currently displayed
     model.saveComment = function(data){
+        data.image_id = curr_id;
         var method = "POST";
-        var url = "http://localhost:3000/api/images/" + curr_id + "/comments/";
+        var url = "http://localhost:3000/api/comments/";
         var body = JSON.stringify(data);
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
                 newest_comment = JSON.parse(this.responseText);
-                model.getComments("http://localhost:3000/api/images/" + curr_id + "/comments/last/?limit=" + 10 + "&sort=decreasing");
+                model.getComments("http://localhost:3000/api/images/" + curr_id + "/comments/" + null + "/?limit=" + 10 + "&sort=decreasing");
             }
         };
         xhr.open(method, url, true);
@@ -98,7 +98,7 @@ var model = (function(){
     //gets the image with the given id, gives an error message if there is no image with that id
     model.getImageAt = function(id){
         if(id === undefined)
-            id = "first";
+            id = null;
 
         var method = "GET";
         var url = "http://localhost:3000/api/images/" + id + "/";
@@ -111,7 +111,7 @@ var model = (function(){
                         if(typeof(image.picture) == "string")
                             image.path = image.picture;
                         else
-                            image.path = "http://localhost:3000/api/images/" + image._id + "/picture/";
+                            image.path = "http://localhost:3000/api/images/" + id + "/picture/";
 
                         curr_id = image._id;
                         newer_comment = null;
@@ -119,10 +119,10 @@ var model = (function(){
                         document.dispatchEvent(new CustomEvent("onImageRetrieved", {detail: image}));
                     }
                     else{
-                        curr_id = "first";
+                        curr_id = null;
                         newer_comment = null;
                         older_comment = null;
-                        curr_comment = "last";
+                        curr_comment = null;
                         newest_comment = null;
                         document.dispatchEvent(new CustomEvent('onRemoveImage'));
                     }
@@ -145,7 +145,7 @@ var model = (function(){
                 var image = JSON.parse(this.responseText);
                 curr_id = image.left;
                 if(curr_id === undefined)
-                    curr_id = "first";
+                    curr_id = null;
                 model.getImageAt(curr_id);
                 model.getOlderTen();
             }
@@ -164,7 +164,7 @@ var model = (function(){
                 var image = JSON.parse(this.responseText);
                 curr_id = image.right;
                 if(curr_id === undefined)
-                    curr_id = "first";
+                    curr_id = null;
                 model.getImageAt(curr_id);
                 model.getOlderTen();
             }
@@ -179,26 +179,24 @@ var model = (function(){
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
-                if(this.status < 400){
-                    var result = JSON.parse(this.responseText);
+                var result = JSON.parse(this.responseText);
 
-                    //update the comment info
-                    if(result.length !== 0){
-                        curr_comment = result[0]._id;
-                        newer_comment = result[0].newer_comment;
-                        result.newer_comment = newer_comment;
-                        older_comment = result[result.length - 1].older_comment;
-                        result.older_comment = older_comment;
-                    }
-                    else{
-                        curr_comment = "last";
-                        newer_comment = null;
-                        result.newer_comment = newer_comment;
-                        older_comment = null;
-                        result.older_comment = older_comment;
-                    }
-                    document.dispatchEvent(new CustomEvent("onCommentsRetrieved", {detail: result}));
+                //update the comment info
+                if(result.length !== 0){
+                    curr_comment = result[0]._id;
+                    newer_comment = result[0].newer_comment;
+                    result.newer_comment = newer_comment;
+                    older_comment = result[result.length - 1].older_comment;
+                    result.older_comment = older_comment;
                 }
+                else{
+                    curr_comment = null;
+                    newer_comment = null;
+                    result.newer_comment = newer_comment;
+                    older_comment = null;
+                    result.older_comment = older_comment;
+                }
+                document.dispatchEvent(new CustomEvent("onCommentsRetrieved", {detail: result}));
             }
         };
         xhr.open(method, url, true);
@@ -207,30 +205,20 @@ var model = (function(){
 
     //gets the next 10 older comments
     model.getOlderTen = function(){
-        if(curr_id == "first")
-            return;
-        if(older_comment === null)
-            older_comment = "last";
         var url = "http://localhost:3000/api/images/"+ curr_id + "/comments/" + older_comment + "/?limit=" + 10 + "&sort=decreasing";
         model.getComments(url);
     };
 
     //gets the next 10 newer comments
     model.getNewerTen = function(){
-        if(curr_id == "first")
-            return;
-        if(newer_comment === null)
-            newer_comment = "last";
         var url = "http://localhost:3000/api/images/" + curr_id + "/comments/" + newer_comment + "/?limit=" + 10 + "&sort=increasing";
         model.getComments(url);
     };
 
     //checks that a new comment hasn't been added, and if there was display it
     model.checkNewestComment = function(){
-        if(curr_id == "first")
-            return;
         var method = "GET";
-        var url = "http://localhost:3000/api/images/" + curr_id + "/comments/last/?limit=1&sort=decreasing";
+        var url = "http://localhost:3000/api/images/" + curr_id + "/comments/null/?limit=1&sort=decreasing";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -269,7 +257,7 @@ var model = (function(){
                     model.getImageAt(curr_id);
                 }
                 else{
-                    curr_id = "first";
+                    curr_id = null;
                     document.dispatchEvent(new CustomEvent("onRemoveImage"));
                 }
             }

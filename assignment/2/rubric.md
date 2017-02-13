@@ -31,7 +31,7 @@ I hereby declared that the work submitted here is mine and its production compli
 1. the Code of Behaviour on Academic Matters of University of Toronto
 1. and the course policy (see website)
 
-[date] February 12, 2017
+[date] February 6, 2017
 
 [signature or initials] J.G.
 

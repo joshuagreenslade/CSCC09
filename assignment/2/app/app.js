@@ -62,9 +62,9 @@ app.post('/api/images/', upload.single('picture'), function(req, res, next){
 	});
 });
 
-//adds the comment to the comments database and links it to the image with id imageId
-app.post('/api/images/:imageId/comments/', function(req, res, next){
-	var image_id = parseInt(req.params.imageId);
+//adds the comment to the comments database
+app.post('/api/comments/', function(req, res, next){
+	var image_id = req.body.image_id;
 
 	//increment the counter
 	counters.findOne({_id: "comments"}, function(err, counter){
@@ -100,21 +100,24 @@ app.get('/favicon.ico', function(req, res, next) {
 
 //gets the image data for the image with the given id
 app.get('/api/images/:id/', function(req, res, next){
-	var id = req.params.id;
+	var id;
 
-	//make sure that the id entered is a number or "first"
-	if(isNaN(id) && (id !== "first")){
-		res.status(400).json("Id '" + id + "' is not first or a number");
+	//make sure that the id entered is a valid possible image id
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
+		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 
-	if(!isNaN(id)){
+	if(id !== null){
 		//finds the image with _id id
-		images.findOne({_id: parseInt(id)}, function(err, result){
+		images.findOne({_id: id}, function(err, result){
 			if(result)
 				res.json(result);
 			else
-				res.status(404).json("Image with id " + id + " does not exist");
+				res.status(404).json("Image with id " + req.params.id + " does not exist");
 
 			return next();
 		});
@@ -130,15 +133,17 @@ app.get('/api/images/:id/', function(req, res, next){
 
 //gets the picture file with the given id
 app.get('/api/images/:id/picture/', function(req, res, next){
-	var id = parseInt(req.params.id);
+	var id;
 
 	//make sure that the id entered is a valid possible image id
-	if(isNaN(id)){
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
 		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
 
-	//return the image url
 	images.findOne({_id: id}, function(err, result){
 		if(result){
 			if(typeof(result.picture) == "string")
@@ -158,63 +163,52 @@ app.get('/api/images/:id/picture/', function(req, res, next){
 //gets comments for the image with 'imageId', starting at 'firstComment' where the comments are sorted as specified and stopping after limit is reached
 //the default for limit is 10 and the default for sort is decreasing
 app.get('/api/images/:imageId/comments/:firstComment/', function(req, res, next){
-	var firstComment = req.params.firstComment;
-	var imageId = parseInt(req.params.imageId);
+	var firstComment;
+	var imageId;
 	var limit = req.query.limit;
 	var sort = req.query.sort;
 
-	//make sure that the imageId given is a number
-	if(isNaN(imageId)){
-		res.status(400).json("imageId '" + req.prams.imageId + "' is not a number");
-		return next();
+	//parameters from url
+	try{
+		firstComment = JSON.parse(req.params.firstComment);
+		imageId = JSON.parse(req.params.imageId);
 	}
-
-	//make sure that firstComment is "last" or a number
-	if(isNaN(firstComment)){
-			if(firstComment !== "last"){
-			res.status(400).json("firstComment '" + firstComment + "' is not last or a number");
-			return next();
-		}
+	catch(e){
+		res.status(400).json("Invalid arguments. " + req.params.firstComment + ", " + req.params.imageId + " must be null or numbers with no leading zeros");
+		return next();
 	}
 
 	//make sure that if limit or sort was provided that they are valid
 	if(limit === undefined)
 		limit = 10;
 	else if(isNaN(limit)){
-		res.status(400).json("Invalid arguments. Limit must be a number and " + limit + " is not");
+		res.status(400).json("Invalid arguments. Limit must be a number and " + limit + " is not")
 		return next();
 	}
 	if(sort === undefined)
 		sort = "decreasing";
 	else if((sort !== "decreasing") && (sort !== "increasing")){
-		res.status(400).json("Invalid arguments. Sort must be a decreasing or increasing and " + sort + " is not");
+		res.status(400).json("Invalid arguments. Sort must be a decreasing or increasing and " + sort + " is not")
 		return next();
 	}
-
-	//if first comment is last and sort is increasing then there are no comments after the last one so return []
-	if((firstComment === "last") && (sort === "increasing")){
-		res.json([]);
-		return next();
-	}
-
 
 	//default database query that will get the comments in decreasing order
 	var query = {image_id: imageId};
 	var order = {_id: -1};
 
 	//modify the query to get the comments whose id is less than or equal to the firstComment's id
-	if((sort == "decreasing") && (firstComment !== "last"))
-		query._id = {$lte: parseInt(firstComment)};
+	if((sort == "decreasing") && (firstComment !== null))
+		query._id = {$lte: firstComment};
 
 	//modify the query to get the comments whose id is greater than or equal to the firstComment's id
-	else if((sort == "increasing") && (firstComment !== "last")){
-		query._id = {$gte: parseInt(firstComment)};
+	else if((sort == "increasing") && (firstComment !== null)){
+		query._id = {$gte: firstComment};
 		order._id = 1;
 	}
 
 	//get comments resulting from the query, stopping after limit is reached
 	comments.find(query).sort(order).limit(limit).exec(function(err, result){
-		if((sort == "increasing") && (firstComment !== "last"))
+		if((sort == "increasing") && (firstComment !== null))
 			res.json(result.reverse());
 		else
 			res.json(result);
@@ -233,10 +227,13 @@ app.get('/api/images/:imageId/comments/:firstComment/', function(req, res, next)
 
 //deletes the image with the given id
 app.delete('/api/images/:id/', function(req, res, next){
-	var id = parseInt(req.params.id);
+	var id;
 
 	//make sure that the id entered is a valid possible image id
-	if(isNaN(id)){
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
 		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}
@@ -270,7 +267,7 @@ app.delete('/api/images/:id/', function(req, res, next){
 			res.json(next_id);
 		}
 		else
-            res.status(404).json("Image " + id + " does not exists");
+            res.status(404).json("Image " + req.params.id + " does not exists");
 		
 		return next();
 	});
@@ -278,10 +275,13 @@ app.delete('/api/images/:id/', function(req, res, next){
 
 //deletes the comment with the given id
 app.delete('/api/comments/:id/', function(req, res, next){
-	var id = parseInt(req.params.id);
+	var id;
 
 	//make sure that the id entered is a valid possible image id
-	if(isNaN(id)){
+	try{
+		id = JSON.parse(req.params.id);
+	}
+	catch(e){
 		res.status(400).json("Id '" + req.params.id + "' is not a valid number");
 		return next();
 	}

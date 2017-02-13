@@ -32,13 +32,14 @@ $ curl -X POST
 
 ### Create
 
-- description: create a new comment for image with imageId
-- request: `POST /api/images/:imageId/comments/`
+- description: create a new comment
+- request: `POST /api/comments/`
     - content-type: `application/json`
     - body: Object
       - author: (string) the comment's author
       - message: (string) the comment's message
       - date: (string) the date the comment was created
+      - image_id: (int) the id of the image that the comment is being made to
 - response: 200
     - content-type: `application/json`
     - body: _id: (int) the id of the newly created comment
@@ -47,7 +48,7 @@ $ curl -X POST
 $ curl -X POST 
        -H "Content-Type: application/json" 
        -d '{"author":"Me", "message":"Hello World", "date":"2/5/2017", "image_id":0}'
-       http://localhost:3000/api/images/0/comments/
+       http://localhost:3000/api/comments/
 ```
 
 
@@ -108,16 +109,14 @@ $ curl http://localhost:3000/api/images/0/picture/
       - older_comment: (int) the id of the comment added before this one
       - newer_comment: (int) the id of the comment added after this one
 - response: 400
-    - body: imageId 'imageId' is not a number
+    - body: Invalid arguments. imageId, firstComment must be null or numbers with no leading zeros
 - response: 400
-    - body: firstComment 'firstComment' is not last or a number
+    - body: Invalid arguments. Limit must be a number and num is not
 - response: 400
-    - body: Invalid arguments. Limit must be a number and 'limit' is not
-- response: 400
-    -body: Invalid arguments. Sort must be a decreasing or increasing and 'sort' is not
+    - body: Invalid arguments. Sort must be a decreasing or increasing and sort is not
  
 ``` 
-$ curl 'http://localhost:3000/api/images/0/comments/last/?limit=1&sort=decreasing'
+$ curl 'http://localhost:3000/api/images/0/comments/0/?limit=1&sort=decreasing'
 ``` 
 
   
