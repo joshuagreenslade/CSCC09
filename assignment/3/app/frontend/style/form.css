@@ -1,0 +1,51 @@
+#hide_button{
+    background-image: url('../media/down-arrow.png');
+    height: 20px;
+    width: 70px;
+}
+
+#hide_button:hover{
+    background-image: url('../media/down-arrow-hover.png');
+}
+
+#upload_form{
+	display: flex;
+	flex-direction: column;
+}
+
+.form_title{
+	display: flex;
+	justify-content: space-between;
+}
+
+.form{
+    margin-top:20px;
+    border-radius: 10px;
+    border: 2px #3C3D3F solid;
+    padding:20px 10px 10px 10px;
+    display:flex;
+    flex-direction: column;
+}
+
+.form .form_title{
+    font-size:20px;
+    font-weight:bold;
+    margin:-20px -10px 20px -10px;
+    padding:10px 0px 10px 25px;
+    color:white;
+    background-color: #3C3D3F;
+    border-radius: 7px 7px 0px 0px;
+}
+
+.form .radio_form{
+    display:flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.form .form_element{
+     margin-bottom:10px;
+     font-size: 20px;
+     border-radius:10px;
+     padding:5px 10px 5px 10px;
+}
