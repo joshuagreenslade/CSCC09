@@ -24,8 +24,8 @@ app.use(function (req, res, next){
 //initialize counters the first time the server starts
 counters.find({}, function(err, counter){
 	if(counter[0] === undefined){
-		counters.insert({_id: 'image', count: 0});
-		counters.insert({_id: 'comments', count: 0});	
+		counters.insert({_id: 'image', count: 1});
+		counters.insert({_id: 'comments', count: 1});
 	}
 });
 
