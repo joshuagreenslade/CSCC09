@@ -10,7 +10,40 @@
 	<body>
 		<header>
 			<h1>The Web Gallery</h1>
+			<button id="sign_in_button" class="btn sign_up_stuff">Sign In</button>
+			<button id="sign_up_button" class="btn sign_in_stuff">Sign Up</button>
+			<button id="sign_out_button" class="btn">Sign Out</button>
 		</header>
+
+		<div id="gallery_navigation">
+			<div id="gallery_left_arrow" class="button gallery_arrow left_arrow"></div>
+			<h2 id=gallery_name></h2>
+			<div id="gallery_right_arrow" class="button gallery_arrow right_arrow"></div>
+		</div>
+		
+		<div id="error"></div>
+
+		<form id="sign_up_form" class="form sign_up_stuff">
+			<div class="form_title">
+				Sign Up
+			</div>
+			<div id="sign_up" class="form_element">
+				<input type="text" class="form_element" id="sign_up_username" placeholder="Username">
+				<input type="password" class="form_element" id="sign_up_password" placeholder="Password">
+				<input type="submit" class="btn" value="Sign Up"/>
+			</div>
+		</form>
+
+		<form id="sign_in_form" class="form sign_in_stuff">
+			<div class="form_title">
+				Sign In
+			</div>
+			<div id="sign_in" class="form_element">
+				<input type="text" class="form_element" id="sign_in_username" placeholder="Username">
+				<input type="password" class="form_element" id="sign_in_password" placeholder="Password">
+				<input type="submit" class="btn" value="Sign In"/>
+			</div>
+		</form>
 
 		<form id="add_image_form" class="form">
 			<div class="form_title">
@@ -20,7 +53,6 @@
 			
 			<div id="upload_form" class="form_element">
 				<input type="text" class="form_element" id="upload_title" placeholder="Picture's Title">
-				<input type="text" class="form_element" id="upload_author" placeholder="Author's Name">
 				<div class="radio_form">
 					<label><input type="radio" id="url_radio" name="file" checked="checked"/>URL</label>
 					<label><input type="radio" id="file_radio" name="file"/>File Upload</label>
@@ -33,9 +65,9 @@
 
 		<div id="display">
 			<div class="main_image">
-				<div id="left_arrow" class="button arrow"></div>
+				<div id="left_arrow" class="button image_arrow left_arrow"></div>
 				<div id="image_stuff"></div>
-				<div id="right_arrow" class="button arrow"></div>
+				<div id="right_arrow" class="button image_arrow right_arrow"></div>
 			</div>
 			<button type="button" class="btn" id="delete_image">Delete Image</button>
 		</div>
@@ -50,7 +82,6 @@
 
 		<form id="comment_form" class="form">
 			<div class="form_title">Comment</div>
-			<input type="text" class="form_element" id="comment_author" placeholder="Author's Name">
 			<textarea id="message_content" class="form_element" placeholder="Enter your message"  rows="3"></textarea>
 			<input type="submit" class="btn" value="Add Comment">
 		</form>

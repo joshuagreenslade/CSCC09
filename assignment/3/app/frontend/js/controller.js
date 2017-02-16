@@ -4,13 +4,19 @@
 
     //model dispatched events
 
+    document.addEventListener("onGalleryRetrieved", function(e){
+        var gallery = e.detail;
+        view.displayGallery(gallery);
+    });
+
     document.addEventListener("onImageRetrieved", function(e){
         var image = e.detail;
         view.displayImage(image);
     });
 
     document.addEventListener("onRemoveImage", function(e){
-        view.removeImage();
+        var gallery = e.detail
+        view.removeImage(gallery);
     });
 
     document.addEventListener("onCommentsRetrieved", function(e){
@@ -23,13 +29,40 @@
         view.sendError(message);
     });
 
+    document.addEventListener("displayError", function(e){
+        var message = e.detail;
+        view.displayError(message)
+    })
+
 
     //view dispatched events
 
     document.addEventListener("onPageLoad", function(e){
-        var id = e.detail;
-        model.load(id);
+        var args = e.detail;
+        model.load(args);
     });
+
+    document.addEventListener("onSignIn", function(e){
+        var data = e.detail;
+        model.signIn(data);
+    });
+
+    document.addEventListener("onSignUp", function(e){
+        var data = e.detail;
+        model.signUp(data);
+    });
+
+    document.addEventListener("onSignOut", function(e){
+        model.signOut();
+    })
+
+    document.addEventListener("getLeftGallery", function(e){
+        model.getLeftGallery();
+    });
+
+    document.addEventListener("getRightGallery", function(e){
+        model.getRightGallery();
+    })
 
     document.addEventListener("onImageUpload", function(e){
         var data = e.detail;

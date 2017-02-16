@@ -5,8 +5,72 @@ var view = (function(){
 
     //passes the arguments entered in the url to the model
     window.onload = function(e){
-        var id = location.search;
-        document.dispatchEvent(new CustomEvent("onPageLoad", {detail: id}));
+        var args = location.search;
+        document.dispatchEvent(new CustomEvent("onPageLoad", {detail: args}));
+    };
+
+    //switch to signup form
+    document.getElementById("sign_up_button").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
+        document.getElementsByClassName("sign_up_stuff")[0].style.display = "flex";
+        document.getElementsByClassName("sign_up_stuff")[1].style.display = "flex";
+        document.getElementsByClassName("sign_in_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_in_stuff")[1].style.display = "none";
+    };
+
+    //switch to signin form
+    document.getElementById("sign_in_button").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
+        document.getElementsByClassName("sign_in_stuff")[0].style.display = "flex";
+        document.getElementsByClassName("sign_in_stuff")[1].style.display = "flex";
+        document.getElementsByClassName("sign_up_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_up_stuff")[1].style.display = "none";
+    };
+
+    //signs out the user
+    document.getElementById("sign_out_button").onclick = function(e){
+        document.getElementsByClassName("sign_in_stuff")[0].style.display = "flex";
+        document.getElementsByClassName("sign_in_stuff")[1].style.display = "flex";
+        document.getElementById("sign_out_button").style.display = "none";
+        document.getElementById("add_image_form").style.display = "none";
+        document.getElementById("image_stuff").innerHTML = "";
+        document.getElementById("display").style.display = "none";
+        document.getElementById("messages").style.display = "none";
+        document.getElementById("comment_form").style.display = "none";
+        history.pushState(null, "", `index.html`);
+
+        document.getElementById("gallery_name").innerHTML = "";
+        document.getElementById("gallery_navigation").style.display = "none";
+
+        document.dispatchEvent(new CustomEvent("onSignOut"));
+    };
+
+    //signs in the user
+    document.getElementById("sign_in_form").onsubmit = function(e){
+        e.preventDefault();
+
+        var username = document.getElementById("sign_in_username").value;
+        var password = document.getElementById("sign_in_password").value;
+
+        if((username !== "") && (password !== "")){
+            var data = {username, password};
+            document.getElementById("sign_in_form").reset();
+            document.dispatchEvent(new CustomEvent("onSignIn", {detail: data}));
+        }
+    };
+
+    //signs up the user
+    document.getElementById("sign_up_form").onsubmit = function(e){
+        e.preventDefault();
+
+        var username = document.getElementById("sign_up_username").value;
+        var password = document.getElementById("sign_up_password").value;
+
+        if((username !== "") && (password !== "")){
+            var data = {username, password};
+            document.getElementById("sign_up_form").reset();
+            document.dispatchEvent(new CustomEvent("onSignUp", {detail: data}));
+        }
     };
 
     //toggles the visibility of the image upload form
@@ -25,7 +89,7 @@ var view = (function(){
         document.getElementById("url_input").style.display = "inline";
     };
 
-    //shpws the file input and hides the url input when the file radio button is selected
+    //shows the file input and hides the url input when the file radio button is selected
     document.getElementById("file_radio").onclick = function(e){
         document.getElementById("file_input").style.display = "inline";
         document.getElementById("url_input").style.display = "none";
@@ -37,11 +101,10 @@ var view = (function(){
 
         var file;
         var title = document.getElementById("upload_title").value;
-        var author = document.getElementById("upload_author").value;
         var data;
 
         //make sure title and author inputs are not empty
-        if((title !== "") && (author !== "")) {
+        if(title !== "") {
 
             //if the file is a url get model to upload it
             if((document.getElementById("url_radio").checked) && (document.getElementById("url_input").value !== "")){
@@ -60,11 +123,10 @@ var view = (function(){
 
             //reset everything except the radio buttons
             document.getElementById("upload_title").value = "";
-            document.getElementById("upload_author").value = "";
             document.getElementById("file_input").value = "";
             document.getElementById("url_input").value = "";
 
-            data = {file, title, author};
+            data = {file, title};
             document.dispatchEvent(new CustomEvent("onImageUpload", {detail: data}));
         }
     };
@@ -88,13 +150,12 @@ var view = (function(){
     document.getElementById("comment_form").onsubmit = function(e){
         e.preventDefault();
 
-        var author = document.getElementById("comment_author").value;
         var message = document.getElementById("message_content").value;
         var date = new Date().toLocaleDateString();
-        var data = {author, message, date};
+        var data = {message, date};
 
         //make sure that the comment has an author and a message
-        if((author === "") || (message === "")){
+        if(message === ""){
             return;
         }
 
@@ -112,24 +173,93 @@ var view = (function(){
         document.dispatchEvent(new CustomEvent("getOlderComments"));
     };
 
+    //tells the model to get the left user
+    document.getElementById("gallery_left_arrow").onclick = function(e){
+        document.dispatchEvent(new CustomEvent("getLeftGallery"));
+    };
+
+    //tells the model to get the right user
+    document.getElementById("gallery_right_arrow").onclick = function(e){
+        document.dispatchEvent(new CustomEvent("getRightGallery"));
+    };
 
     var view = {};
+
+    view.displayGallery = function(gallery){
+
+        //hide the signup and signin forms
+        document.getElementById("error").innerHTML = "";
+        document.getElementsByClassName("sign_in_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_in_stuff")[1].style.display = "none";
+        document.getElementsByClassName("sign_up_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_up_stuff")[1].style.display = "none";
+        document.getElementById("sign_out_button").style.display = "flex"
+
+        //if the gallery belongs to the current user display the upload image form, otherwise hide it
+        if(gallery.username === gallery.curr_user)
+            document.getElementById("add_image_form").style.display = "flex";
+        else
+            document.getElementById("add_image_form").style.display = "none";
+
+
+        history.pushState(null, "", `index.html?gallery=${gallery.username}`);
+        document.getElementById("gallery_name").innerHTML = gallery.username + "'s Gallery";
+        document.getElementById("gallery_navigation").style.display = "flex";
+
+        //if no user to the left hide the arrow
+        if(gallery.left !== null)
+            document.getElementById("gallery_left_arrow").style.visibility = "visible";
+        else
+            document.getElementById("gallery_left_arrow").style.visibility = "hidden";
+        
+        //if no user to the right hide the arrow
+        if(gallery.right !== null)
+            document.getElementById("gallery_right_arrow").style.visibility = "visible";
+        else
+            document.getElementById("gallery_right_arrow").style.visibility = "hidden";
+
+        //display first image in the users gallery
+ //       document.dispatchEvent(new CustomEvent("get"))
+    };
+
 
 
     //image methods
 
     //put the image, title, and author from data into the DOM
     view.displayImage = function(data){
+
+        //document.getElementById("gallery_name").innerHTML = data.gallery + "'s Gallery";
+        //document.getElementById("gallery_navigation").style.display = "flex";
+
+        //hide the signup and signin forms
+/*        document.getElementById("error").innerHTML = "";
+        document.getElementsByClassName("sign_in_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_in_stuff")[1].style.display = "none";
+        document.getElementsByClassName("sign_up_stuff")[0].style.display = "none";
+        document.getElementsByClassName("sign_up_stuff")[1].style.display = "none";
+        document.getElementById("sign_out_button").style.display = "flex"
+
+        //show upload image form
+        document.getElementById("add_image_form").style.display = "flex";
+*/
+
+        if(data.gallery === data.curr_user)
+            document.getElementById("delete_image").style.display = "flex";
+        else
+            document.getElementById("delete_image").style.display = "none";
+
+
         document.getElementById("image_stuff").innerHTML = `
                     <img id="image" src=${data.path} alt=${data.title}>
                     <label id="image_name">Title: ${data.title}</label>
                     <label id="author_name">By: ${data.author}</label>`;
 
         document.getElementById("display").style.display = "inline";
-        document.getElementById("delete_image").style.display = 'inline';
         document.getElementById("messages").style.display = "inline";
         document.getElementById("comment_form").style.display = "flex";
-        history.pushState(null, "", `index.html?id=${data._id}`);
+
+        history.pushState(null, "", `index.html?gallery=${data.gallery}&id=${data._id}`);
 
         //if no left image set left arrow's visibility to hidden
         if(data.left !== null){
@@ -149,12 +279,14 @@ var view = (function(){
     };
 
     //removes the image from the DOM
-    view.removeImage = function(){
+    view.removeImage = function(gallery){
+
+        //hide image stuff
         document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("display").style.display = "none";
         document.getElementById("messages").style.display = "none";
         document.getElementById("comment_form").style.display = "none";
-        history.pushState(null, "", `index.html`);
+        history.pushState(null, "", `index.html?gallery=${gallery}`);
     };
 
 
@@ -232,6 +364,10 @@ var view = (function(){
         document.getElementById("comment_form").style.display = "none";
         document.getElementById("right_arrow").style.visibility = "hidden";
         document.getElementById("left_arrow").style.visibility = "hidden";
+    };
+
+    view.displayError = function(message){
+        document.getElementById("error").innerHTML = message;
     };
 
     return view;
