@@ -32,81 +32,9 @@ var model = (function(){
     //loads the image with the id provided as an argument in the url
     model.load = function(args){
 
-
-
-
-
-//make api delete comment method only work if the user who is signed in
-//wrote the comment or owns the gallery, so if the gallery passed in the
-//url or the author of the comment is the same as the one in the cookie
-//allow deletion
-//
-//then hide the delete button if not allowed to click
-
-//////////////////////////////////////////////////////////////////////////////////
-//do this
-//
-//Gallery owners can upload and delete pictures to their own gallery only
-//Authenticated users can post comments on any picture of any gallery
-//Authenticated users can delete any one of their own comments but not others
-//Gallery owners can delete any comment on any picture from their own gallery
-///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-        ////////////////////////////////////////////////////////////////////////////////
-        //still need to
-        //enter invalid or no gallery display error and hide all upload forms
-        //
-        //
-        //prevent unsigned in users from doing something
-        //only the owner can add/delete images (if they try give error[because they could unhide it themselves] and hide the buttons)
-        //any signed in user can comment
-        //only comment creator or gallery owner can delete comment
-        ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//want to add a bool that says if the gallery belongs to the current user
-//that view will use to hide upload and delete buttons
-//maybe just set user
-
-
-
         //if empty load login or users gallery if signed in
         if(args === ""){
-            var method = "GET";
-            var url = "/api/gallery/";
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (this.readyState === XMLHttpRequest.DONE){
-                    var gallery = JSON.parse(this.responseText);
-                    if(gallery !== null){
-                        curr_gallery = gallery.username;
-                        model.getImageAt("first");
-                        document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: gallery}));
-                    }
-/*                    else{
-                        document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                    }
-*/                }
-            };
-            xhr.open(method, url, true);
-            xhr.send(null);
+            model.getUserGallery();
         }
 
         //if arguments were given to the url
@@ -120,14 +48,20 @@ var model = (function(){
             //get the args
             curr_gallery = null;
             curr_id = null;
-            for(var i=0; i<args.length; i++) {
+            for(var i = 0; i < args.length; i++) {
                 args[i] = args[i].split("=")
-                if((curr_gallery === null) && (args[i][0] === "gallery")){
+                if(args[i].length !== 2){
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: "Url was not formatted properly"}));
+                    return;
+                }
+
+                //if curr_gallery has not been set and the argument was the gallery name
+                if((curr_gallery === null) && (args[i][0] === "gallery"))
                     curr_gallery = args[i][1];
-                }
-                else if((curr_id === null) && (args[i][0] === "id")){
+
+                //if curr_id has not been set and the argument wasthe image name
+                else if((curr_id === null) && (args[i][0] === "id"))
                     curr_id = args[i][1];
-                }
                 else{
                     document.dispatchEvent(new CustomEvent("displayError", {detail: "Url was not formatted properly"}));
                     return;
@@ -143,26 +77,10 @@ var model = (function(){
             }
             else{
 
-                //check that gallery for curr_gallery exists
+                //get the image and gallery specified
+                //getting the image before the gallery results in the image being displayed right when the gallery is displayed
                 model.getImageAt(curr_id);
                 model.getGalleryAt(curr_gallery);
-  /*              var method = "GET";
-                var url = "/api/gallery/" + curr_gallery + "/";
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (this.readyState === XMLHttpRequest.DONE){
-                        var gallery = JSON.parse(this.responseText);
-                        if(gallery === null){
-                            var message = "Gallery " + curr_gallery + " does not exist"
-                            document.dispatchEvent(new CustomEvent("displayError", {detail: message}));
-                            return;
-                        }
-                        model.getImageAt(curr_id);   
-                    }
-                };
-                xhr.open(method, url, true);
-                xhr.send(null);
-    */
             }
         }
         else{
@@ -170,88 +88,6 @@ var model = (function(){
             return;
         }
     };
-
-    //get the current gallery
-    model.getGalleryAt = function(gallery_name){
-        var method = "GET";
-        var url = "/api/gallery/" + gallery_name + "/";
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (this.readyState === XMLHttpRequest.DONE){
-                if(this.status < 400){
-                    var gallery = JSON.parse(this.responseText);
-                    if(gallery === null){
-                        var message = "Gallery " + gallery_name + " does not exist"
-                        document.dispatchEvent(new CustomEvent("displayError", {detail: message}));
-                        return;
-                    }
-                    curr_gallery = gallery.username;
-                    document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: gallery}));
-                }
-                else
-                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}))
-            }
-        };
-        xhr.open(method, url, true);
-        xhr.send(null);
-    };
-
-    //gets the gallery to the left of the current one
-    model.getLeftGallery = function(){
-        curr_id = "first";
-        newer_comment = null;
-        older_comment = null;
-        curr_comment = "last";
-        newest_comment = null;
-
-        var method = "GET";
-        var url = "/api/gallery/" + curr_gallery + "/";
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (this.readyState === XMLHttpRequest.DONE){
-                if(this.status < 400){
-                    var gallery = JSON.parse(this.responseText);
-                    curr_gallery = gallery.left;
-                    model.getImageAt("first");
-                    model.getGalleryAt(curr_gallery);
-                }
-                else{
-                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
-            }
-        };
-        xhr.open(method, url, true);
-        xhr.send(null);
-    };
-
-    //gets the gallery to the right of the current one
-    model.getRightGallery = function(){
-        curr_id = "first";
-        newer_comment = null;
-        older_comment = null;
-        curr_comment = "last";
-        newest_comment = null;
-
-        var method = "GET";
-        var url = "/api/gallery/" + curr_gallery + "/";
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (this.readyState === XMLHttpRequest.DONE){
-                if(this.status < 400){
-                    var gallery = JSON.parse(this.responseText);
-                    curr_gallery = gallery.right;
-                    model.getImageAt("first");
-                    model.getGalleryAt(curr_gallery);
-                }
-                else{
-                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
-            }
-        };
-        xhr.open(method, url, true);
-        xhr.send(null);
-    };
-
 
     //gets the first image in the gallery
     model.returnToStart = function(){
@@ -273,8 +109,14 @@ var model = (function(){
                 if(this.status < 400){
                     var user = JSON.parse(this.responseText);
                     curr_gallery = user.username;
-                    model.getImageAt("first");
-                    document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
+
+                    //if a gallery and image were given in the url load them
+                    if(location.search !== "")
+                        model.load(location.search);
+                    else{
+                        model.getImageAt("first");
+                        document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
+                    }
                 }
                 else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
@@ -296,8 +138,14 @@ var model = (function(){
                 if(this.status < 400){
                     var user = JSON.parse(this.responseText);
                     curr_gallery = user.username;
-                    model.getImageAt("first");
-                    document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
+
+                    //if a gallery and image were given in the url load them
+                    if(location.search !== "")
+                        model.load(location.search);
+                    else{
+                        model.getImageAt("first");
+                        document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
+                    }
                 }
                 else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
@@ -350,12 +198,13 @@ var model = (function(){
             if (this.readyState === XMLHttpRequest.DONE){
                 if(this.status < 400){
                     curr_id = JSON.parse(this.responseText);
+
+                    //getting the comments before the image results in the comments being displayed right when the image is displayed
                     model.getOlderTen();
                     model.getImageAt(curr_id);
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);
@@ -374,9 +223,8 @@ var model = (function(){
                     newest_comment = JSON.parse(this.responseText);
                     model.getComments("/api/gallery/" + curr_gallery + "/images/" + curr_id + "/comments/last/?limit=" + 10 + "&sort=decreasing");
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);
@@ -386,6 +234,108 @@ var model = (function(){
 
 
     //Read
+
+    //get the current user's gallery
+    model.getUserGallery = function(){
+        var method = "GET";
+        var url = "/api/gallery/";
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+                var gallery = JSON.parse(this.responseText);
+                if(gallery !== null){
+                    curr_gallery = gallery.username;
+                    model.getImageAt("first");
+                    document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: gallery}));
+                }
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+    }
+
+    //get the current gallery
+    model.getGalleryAt = function(gallery_name){
+        var method = "GET";
+        var url = "/api/gallery/" + gallery_name + "/";
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+                if(this.status < 400){
+                    var gallery = JSON.parse(this.responseText);
+                    curr_gallery = gallery.username;
+                    document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: gallery}));
+                }
+                else if(this.status == 404){
+                    curr_gallery = null;
+                    var response = {message: this.responseText, gallery: curr_gallery};
+                    document.dispatchEvent(new CustomEvent("error", {detail: response}))
+                }
+                else
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}))
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+    };
+
+    //gets the gallery to the left of the current one
+    model.getLeftGallery = function(){
+        curr_id = "first";
+        newer_comment = null;
+        older_comment = null;
+        curr_comment = "last";
+        newest_comment = null;
+
+        var method = "GET";
+        var url = "/api/gallery/" + curr_gallery + "/";
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+                if(this.status < 400){
+                    var gallery = JSON.parse(this.responseText);
+                    curr_gallery = gallery.left;
+
+                    //getting the image before the gallery results in the image being displayed right when the gallery is displayed
+                    model.getImageAt("first");
+                    model.getGalleryAt(curr_gallery);
+                }
+                else
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+    };
+
+    //gets the gallery to the right of the current one
+    model.getRightGallery = function(){
+        curr_id = "first";
+        newer_comment = null;
+        older_comment = null;
+        curr_comment = "last";
+        newest_comment = null;
+
+        var method = "GET";
+        var url = "/api/gallery/" + curr_gallery + "/";
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE){
+                if(this.status < 400){
+                    var gallery = JSON.parse(this.responseText);
+                    curr_gallery = gallery.right;
+
+                    //getting the image before the gallery results in the image being displayed right when the gallery is displayed
+                    model.getImageAt("first");
+                    model.getGalleryAt(curr_gallery);
+                }
+                else
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
+            }
+        };
+        xhr.open(method, url, true);
+        xhr.send(null);
+    };
 
     //gets the image with the given id in the given gallery, gives an error message if there is no image with that id in that gallery
     model.getImageAt = function(id){
@@ -420,8 +370,10 @@ var model = (function(){
                         document.dispatchEvent(new CustomEvent('onRemoveImage', {detail: curr_gallery}));
                     }
                 }
-                else
-                    document.dispatchEvent(new CustomEvent("error", {detail: this.responseText}));
+                else if(this.status === 404){
+                    var response = {message: this.responseText, gallery: curr_gallery};
+                    document.dispatchEvent(new CustomEvent("error", {detail: response}))
+                }
             }
         };
         xhr.open(method, url, true);
@@ -440,6 +392,8 @@ var model = (function(){
                     curr_id = image.left;
                     if(curr_id === undefined)
                         curr_id = "first";
+
+                    //getting the comments before the image results in the comments being displayed right when the image is displayed
                     model.getOlderTen();
                     model.getImageAt(curr_id);
                 }
@@ -464,12 +418,13 @@ var model = (function(){
                     curr_id = image.right;
                     if(curr_id === undefined)
                         curr_id = "first";
+
+                    //getting the comments before the image results in the comments being displayed right when the image is displayed
                     model.getOlderTen();
                     model.getImageAt(curr_id);
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);
@@ -485,20 +440,20 @@ var model = (function(){
                 if(this.status < 400){
                     var result = JSON.parse(this.responseText);
 
-                    //update the comment info
-                    if(result.length !== 0){
-                        curr_comment = result[0]._id;
-                        newer_comment = result[0].newer_comment;
-                        result.newer_comment = newer_comment;
-                        older_comment = result[result.length - 1].older_comment;
-                        result.older_comment = older_comment;
+                    //update the comment info to include the older and newer comment for the list of comments
+                    if(result.comments.length !== 0){
+                        curr_comment = result.comments[0]._id;
+                        newer_comment = result.comments[0].newer_comment;
+                        result.comments.newer_comment = newer_comment;
+                        older_comment = result.comments[result.comments.length - 1].older_comment;
+                        result.comments.older_comment = older_comment;
                     }
                     else{
                         curr_comment = "last";
                         newer_comment = null;
-                        result.newer_comment = newer_comment;
+                        result.comments.newer_comment = newer_comment;
                         older_comment = null;
-                        result.older_comment = older_comment;
+                        result.comments.older_comment = older_comment;
                     }
                     document.dispatchEvent(new CustomEvent("onCommentsRetrieved", {detail: result}));
                 }
@@ -551,9 +506,8 @@ var model = (function(){
                         model.getOlderTen();
                     }
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);
@@ -585,9 +539,8 @@ var model = (function(){
                         document.dispatchEvent(new CustomEvent("onRemoveImage", {detail: curr_gallery}));
                     }
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);
@@ -605,9 +558,8 @@ var model = (function(){
                     older_comment = curr_comment;
                     model.getOlderTen();
                 }
-                else{
+                else
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
-                }
             }
         };
         xhr.open(method, url, true);

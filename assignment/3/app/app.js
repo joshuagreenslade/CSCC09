@@ -2,9 +2,10 @@ var crypto = require('crypto');
 var path = require('path');
 var express = require('express');
 var app = express();
-
+var fs = require('fs');
 var multer = require('multer');
 var upload = multer({dest: 'uploads/'});
+var https = require('https');
 
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
@@ -14,16 +15,16 @@ var images = new Datastore({ filename: 'db/images.db', autoload: true, timestamp
 var comments = new Datastore({ filename: 'db/comments.db', autoload: true, timestampData : true});
 var users = new Datastore({ filename: 'db/users.db', autoload: true, timestampData: true});
 
-var fs = require('fs');
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
 var session = require('express-session');
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {}
 }));
-
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
 
 var privateKey = fs.readFileSync( 'server.key' );
 var certificate = fs.readFileSync( 'server.crt' );
@@ -31,10 +32,8 @@ var config = {
         key: privateKey,
         cert: certificate
 };
-var https = require('https');
 
 app.use(express.static('frontend'));
-
 
 app.use(function (req, res, next){
     console.log("HTTPS request", req.method, req.url, req.body);
@@ -44,6 +43,7 @@ app.use(function (req, res, next){
 
 //Authentication
 
+//check that the password provided is the correct password for the given user
 var checkPassword = function(user, password){
         var hash = crypto.createHmac('sha512', user.salt);
         hash.update(password);
@@ -52,61 +52,37 @@ var checkPassword = function(user, password){
 };
 
 
-// signout, signin
+// signin, signout
 
-app.get('/api/signout/', function (req, res, next) {
-    req.session.destroy(function(err) {
-        if (err) return res.status(500).end(err);
-        return res.end();
-    });
-	res.clearCookie('username');
-});
-
+//sign the user in and put the user into the session
 app.post('/api/signin/', function (req, res, next) {
     if (!req.body.username || !req.body.password)
     	return res.status(400).send("Bad Request");
 
-    //look for the user in the db and confirm that the password is right
+    //look for the user in the db and confirm that the given password is correct
     users.findOne({username: req.body.username}, function(err, user){
         if (err) return res.status(500).end(err);
         if (!user || !checkPassword(user, req.body.password))
         	return res.status(401).end("Unauthorized");
         req.session.user = user;
-        res.cookie('username', user.username);
         user.curr_user = user.username;
         res.json(user);
         return next();
     });
 });
 
-
-
-
-
-
-
-
-
-
-//req.cookies returns the set of cookies
-
-
-
-
-
-
-
-
-
-
-
-
-
+//sign the user out and destroy the session
+app.get('/api/signout/', function (req, res, next) {
+    req.session.destroy(function(err) {
+        if (err) return res.status(500).end(err);
+        return res.status(200).end("signed out");
+    });
+});
 
 
 //Create
 
-//creates a new user
+//creates a new user and put the user into the session
 app.post('/api/users/', function(req, res, next){
 
 	//check if the user already exists
@@ -136,7 +112,6 @@ app.post('/api/users/', function(req, res, next){
 		    		users.update({username: result.username}, result);
 		    	}
 		    	req.session.user = user;
-		    	res.cookie('username', user.username);
 		    	user.curr_user = user.username;
 		    	return res.json(user);
 		    });
@@ -144,17 +119,11 @@ app.post('/api/users/', function(req, res, next){
 	});
 });
 
-
-
-
-//user req.cookies.username to figure out what user is currently making calls to api
-
-
-
-
 //adds the image info to the gallery's image database, and if picture is a file upload it
 app.post('/api/gallery/:gallery/images/', upload.single('picture'), function(req, res, next){
-	if((!req.cookies) || (req.cookies.username !== req.params.gallery))
+
+	//make sure that only the gallery owner can upload an image
+	if((!req.session.user) || (req.session.user.username !== req.params.gallery))
 		return res.status(401).end("Forbidden");
 
 	var file = req.file;
@@ -169,7 +138,7 @@ app.post('/api/gallery/:gallery/images/', upload.single('picture'), function(req
 			left = result._id;
 
 		//add the image info to the gallery's images database
-		images.insert({gallery: req.params.gallery, picture: file, title: req.body.title, author: req.cookies.username, left: left, right: null}, function(err, insert_result){
+		images.insert({gallery: req.params.gallery, picture: file, title: req.body.title, author: req.session.user.username, left: left, right: null}, function(err, insert_result){
 			if(err) return res.status(500).end(err);
 
 			//link the new image to the previous one in the gallery
@@ -185,7 +154,7 @@ app.post('/api/gallery/:gallery/images/', upload.single('picture'), function(req
 
 //adds the comment to the comments database and links it to the image with id imageId in gallery
 app.post('/api/gallery/:gallery/images/:imageId/comments/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username === undefined))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	//link the previous comment with the same imageId in gallery to the new comment 
@@ -196,7 +165,7 @@ app.post('/api/gallery/:gallery/images/:imageId/comments/', function(req, res, n
 			older_comment = result._id;
 
 		//add the comment to the comments database
-		comments.insert({gallery: req.params.gallery, image_id: req.params.imageId, author: req.cookies.username, message: req.body.message, date: req.body.date, older_comment: older_comment, newer_comment: null}, function(err, insert_result){
+		comments.insert({gallery: req.params.gallery, image_id: req.params.imageId, author: req.session.user.username, message: req.body.message, date: req.body.date, older_comment: older_comment, newer_comment: null}, function(err, insert_result){
 			if(err) return res.status(500).end(err);
 
 			//link the new comment to the previous comment
@@ -215,30 +184,31 @@ app.post('/api/gallery/:gallery/images/:imageId/comments/', function(req, res, n
 
 //Read
 
-//gets the users gallery or returns nothing if there is no signed in user
+//gets the users gallery or returns null if there is no signed in user
 app.get('/api/gallery/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username === undefined))
-		return;
+	if(!req.session.user)
+		return res.json(null);
 
-	users.findOne({username: req.cookies.username}, function(err, user){
-		user.curr_user = req.cookies.username;
+	users.findOne({username: req.session.user.username}, function(err, user){
+		user.curr_user = req.session.user.username;
 		res.json(user);
 		return next();
 	});
 });
 
-//returns the gallery if the supplied gallery name exists
+//gets the gallery if the given gallery exists
 app.get('/api/gallery/:gallery/', function(req, res, next){
-	console.log(req.cookies)
-	console.log(!req.cookies)
-	console.log(req.cookies.username === undefined)
-	if((!req.cookies) || (req.cookies.username === undefined))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	users.findOne({username: req.params.gallery}, function(err, gallery){
-		gallery.curr_user = req.cookies.username;
-		res.json(gallery);
-		return next();
+		if(gallery){
+			gallery.curr_user = req.session.user.username;
+			res.json(gallery);
+			return next();
+		}
+		else
+			res.status(404).end("Gallery " + req.params.gallery + " does not exist");
 	});
 });
 
@@ -250,7 +220,7 @@ app.get('/favicon.ico', function(req, res, next) {
 
 //gets the image data for the image with the given id in the given gallery
 app.get('/api/gallery/:gallery/images/:id/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username === undefined))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	if(req.params.id !== "first"){
@@ -259,11 +229,11 @@ app.get('/api/gallery/:gallery/images/:id/', function(req, res, next){
 		images.findOne({_id: req.params.id, gallery: req.params.gallery}, function(err, result){
 			if(err) return res.status(500).end(err);
 			if(result){
-				result.curr_user = req.cookies.username;
+				result.curr_user = req.session.user.username;
 				res.json(result);
+				return next();
 			}
 			else return res.status(404).json("Image with id " + req.params.id + " does not exist in gallery " + req.params.gallery);
-			return next();
 		});
 	}
 	else{
@@ -271,6 +241,8 @@ app.get('/api/gallery/:gallery/images/:id/', function(req, res, next){
 		//gets the first image in the gallery
 		images.findOne({gallery: req.params.gallery}).sort({createdAt: 1}).exec(function(err, result){
 			if(err) return res.status(500).end(err);
+			if(result)
+				result.curr_user = req.session.user.username;
 			res.json(result);
 			return next();
 		});
@@ -279,7 +251,7 @@ app.get('/api/gallery/:gallery/images/:id/', function(req, res, next){
 
 //gets the picture file with the given id
 app.get('/api/gallery/:gallery/images/:id/picture/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username === undefined))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	//return the image url
@@ -292,16 +264,16 @@ app.get('/api/gallery/:gallery/images/:id/picture/', function(req, res, next){
 				res.setHeader('Content-Type', result.picture.mimetype);
 		        res.sendFile(path.join(__dirname, result.picture.path));
 	    	}
+	    	return next();
     	}
-    	else return res.status(404).json("Image with id " + req.params.id + " does not exists in gallery " + res.params.gallery);
-    	return next();
+    	else return res.status(404).json("Image with id " + req.params.id + " does not exists in gallery " + req.params.gallery);
 	});
 });
 
-//gets comments for the image with 'imageId' in the given gallery, starting at 'firstComment' where the comments are sorted as specified and stopping after
+//gets comments for the given image in the given gallery, starting at the given comment where the comments are sorted as specified and stopping after
 //limit is reached, the default for limit is 10 and the default for sort is decreasing
 app.get('/api/gallery/:gallery/images/:imageId/comments/:firstComment/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username === undefined))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	var firstComment = req.params.firstComment;
@@ -347,10 +319,10 @@ app.get('/api/gallery/:gallery/images/:imageId/comments/:firstComment/', functio
 		//get comments resulting from the query, stopping after limit is reached
 		comments.find(query).sort(order).limit(limit).exec(function(err, result){
 			if(err) return res.status(500).end(err);
+
 			if((sort == "increasing"))
-				res.json(result.reverse());
-			else
-				res.json(result);
+				result.reverse();
+			res.json({comments: result, curr_user: req.session.user.username})
 			return next();
 		});	
 	});
@@ -366,7 +338,9 @@ app.get('/api/gallery/:gallery/images/:imageId/comments/:firstComment/', functio
 
 //deletes the image with the given id from the given gallery
 app.delete('/api/gallery/:gallery/images/:id/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username !== req.params.gallery))
+
+	//make sure only the gallery owner can delete an image
+	if((!req.session.user) || (req.session.user.username !== req.params.gallery))
 		return res.status(401).end("Forbidden");
 
 	//get the image to be deleted from the given gallery
@@ -411,16 +385,16 @@ app.delete('/api/gallery/:gallery/images/:id/', function(req, res, next){
 
 //deletes the comment with the given id
 app.delete('/api/gallery/:gallery/images/:imageId/comments/:id/', function(req, res, next){
-	if((!req.cookies) || (req.cookies.username !== req.params.gallery))
+	if(!req.session.user)
 		return res.status(401).end("Forbidden");
 
 	//get the comment to be deleted from the given image in the given gallery
-	comments.findOne({_id: req.params.id, image_id: imageId, gallery: req.params.gallery}, function(err, comment){
+	comments.findOne({_id: req.params.id, image_id: req.params.imageId, gallery: req.params.gallery}, function(err, comment){
 		if(err) return res.status(500).end(err);
 		if(comment){
 
 			//make sure that only the comment author or gallery owner can delete a comment
-			if((comment.author !== req.cookies.username) && (comment.gallery !== req.cookies.username))
+			if((comment.author !== req.session.user.username) && (comment.gallery !== req.session.user.username))
 				return res.status(401).end("Forbidden");
 
 			//update the older_comment's newer_comment link

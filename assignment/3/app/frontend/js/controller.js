@@ -25,8 +25,8 @@
     });
 
     document.addEventListener("error", function(e){
-        var message = e.detail;
-        view.sendError(message);
+        var error = e.detail;
+        view.sendError(error);
     });
 
     document.addEventListener("displayError", function(e){
@@ -40,6 +40,10 @@
     document.addEventListener("onPageLoad", function(e){
         var args = e.detail;
         model.load(args);
+    });
+
+    document.addEventListener("returnToStart", function(e){
+        model.returnToStart();
     });
 
     document.addEventListener("onSignIn", function(e){
@@ -56,6 +60,20 @@
         model.signOut();
     })
 
+    document.addEventListener("onImageUpload", function(e){
+        var data = e.detail;
+        model.uploadImage(data);
+    });
+
+    document.addEventListener("onNewComment", function(e){
+        var data = e.detail;
+        model.saveComment(data);
+    });
+
+    document.addEventListener("returnToGallery", function(e){
+        model.getUserGallery();
+    });
+
     document.addEventListener("getLeftGallery", function(e){
         model.getLeftGallery();
     });
@@ -63,11 +81,6 @@
     document.addEventListener("getRightGallery", function(e){
         model.getRightGallery();
     })
-
-    document.addEventListener("onImageUpload", function(e){
-        var data = e.detail;
-        model.uploadImage(data);
-    });
 
     document.addEventListener("getLeftImage", function(e){
         model.getLeftImage();
@@ -77,25 +90,16 @@
         model.getRightImage();
     });
 
-    document.addEventListener("deleteImage", function(e){
-        model.deleteImage();
-    });
-
-    document.addEventListener("returnToStart", function(e){
-        model.returnToStart();
-    });
-
-    document.addEventListener("onNewComment", function(e){
-        var data = e.detail;
-        model.saveComment(data);
-    });
-
     document.addEventListener("getOlderComments", function(e){
         model.getOlderTen();
     });
 
     document.addEventListener("getNewerComments", function(e){
         model.getNewerTen();
+    });
+
+    document.addEventListener("deleteImage", function(e){
+        model.deleteImage();
     });
 
     document.addEventListener("onDeleteComment", function(e){
