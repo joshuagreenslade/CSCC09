@@ -63,7 +63,7 @@ app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    cookie: {secure: true, SameSite: true}
+    cookie: {secure: true, sameSite: true}
 }));
 
 app.use(function (req, res, next){
@@ -106,17 +106,19 @@ app.post('/api/signin/', function (req, res, next) {
     //check for invalid username and password
     req.checkBody('username', 'Invalid username').notEmpty().isAlphanumeric();
     req.checkBody('password', 'Invalid password').notEmpty().isAlphanumeric();
+
     if(req.validationErrors()){
         res.status(400).end("Invalid username or password");
         return next();
     }
+
 
     if (!req.body.username || ! req.body.password) return res.status(400).send("Bad Request");
     users.findOne({username: req.body.username}, function(err, user){
         if (err) return res.status(500).end(err);
         if (!user || !checkPassword(user, req.body.password)) return res.status(401).end("Unauthorized");
         req.session.user = user;
-        res.cookie('username', user.username, {httpOnly: true, secure: true, SameSite: true});
+        res.cookie('username', user.username, {httpOnly: true, secure: true, sameSite: true});
         return res.json(user);
     });
 });
