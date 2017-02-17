@@ -63,7 +63,7 @@ app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    cookie: {secure: true, sameSite: true}
+    cookie: {secure: true, SameSite: true}
 }));
 
 app.use(function (req, res, next){
@@ -116,7 +116,7 @@ app.post('/api/signin/', function (req, res, next) {
         if (err) return res.status(500).end(err);
         if (!user || !checkPassword(user, req.body.password)) return res.status(401).end("Unauthorized");
         req.session.user = user;
-        res.cookie('username', user.username, {httpOnly: true, secure: true, sameSite: true});
+        res.cookie('username', user.username, {httpOnly: true, secure: true, SameSite: true});
         return res.json(user);
     });
 });

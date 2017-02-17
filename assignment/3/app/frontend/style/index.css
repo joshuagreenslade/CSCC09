@@ -1,19 +1,41 @@
+#error{
+    color: red;
+}
+
+#gallery_navigation{
+    display: none;
+}
+
+.gallery_arrow{
+    background-size: 50%;
+    visibility: hidden
+}
+
+#gallery_name{
+    max-width: 600px;
+    word-wrap: break-word;  
+}
+
+#add_image_form{
+    display: none;
+}
+
 #display{
     display: none;
 }
 
-.arrow{
+.image_arrow{
     background-size: 50%;
     height: 600px;
     visibility: hidden;
 }
 
-#left_arrow{
+.left_arrow{
 	background-image: url('../media/right-arrow.png');
     -webkit-transform: scaleX(-1);
 }
 
-#right_arrow{
+.right_arrow{
 	background-image: url('../media/right-arrow.png');
 }
 
@@ -72,11 +94,6 @@
     margin-bottom: 5px;
     overflow-x: auto;
 }
-/*
-#hidden{
-    display: none;
-}
-*/
 
 #comment_form{
     display: none;

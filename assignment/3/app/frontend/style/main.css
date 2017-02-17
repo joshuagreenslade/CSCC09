@@ -13,7 +13,7 @@ body {
 header{
     display:flex;
     margin-top:36px;
-    justify-content:flex-end;
+    justify-content: space-between;
 }
 
 header h1{
@@ -21,6 +21,14 @@ header h1{
     padding-top:4px;
     width:100%;
     font-size:48px;
+}
+
+.sign_up_stuff{
+    display: none;
+}
+
+#sign_out_button{
+    display: none;
 }
 
 .button{
