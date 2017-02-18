@@ -218,7 +218,6 @@ var view = (function(){
     view.displayGallery = function(gallery){
 
         //hide the signup and signin forms aswell as the switch to signin and signup buttons
-        document.getElementById("error").innerHTML = "";
         document.getElementsByClassName("sign_in_stuff")[0].style.display = "none";
         document.getElementsByClassName("sign_in_stuff")[1].style.display = "none";
         document.getElementsByClassName("sign_up_stuff")[0].style.display = "none";
@@ -232,8 +231,10 @@ var view = (function(){
         else
             document.getElementById("add_image_form").style.display = "none";
 
-        //display the gallery info
-        history.pushState(null, "", `index.html?gallery=${gallery.username}`);
+        //if the gallery name in the url has not changed dont update it
+        if((location.search === "") || (location.search.split("gallery=")[1].split("&")[0] !== gallery.username))
+            history.pushState(null, "", `index.html?gallery=${gallery.username}`);
+
         document.getElementById("gallery_name").innerHTML = gallery.username + "'s Gallery";
         document.getElementById("gallery_navigation").style.display = "flex";
 
@@ -256,21 +257,34 @@ var view = (function(){
     //put the image, title, and author from data into the DOM
     view.displayImage = function(data){
 
+        var url = location.href;
+        document.getElementById("error").innerHTML = "";
+        history.pushState(null, "", `index.html?gallery=${data.gallery}&id=${data._id}`);
+
         //hide the delete image button if the current user is not the gallery owner
         if(data.gallery === data.curr_user)
             document.getElementById("delete_image").style.display = "flex";
         else
             document.getElementById("delete_image").style.display = "none";
 
-        //show the image stuff
-        document.getElementById("image_stuff").innerHTML = `
-                    <img id="image" src=${data.path} alt=${data.title}>
-                    <label id="image_name">Title: ${data.title}</label>
-                    <label id="author_name">By: ${data.author}</label>`;
+        //if there is an image and url has not changed don't update the image
+        if((document.getElementById("image") === null) || (location.href !== url)){
+            
+            //show the image stuff
+            document.getElementById("image_stuff").innerHTML = `
+                        <img id="image" src=${data.path} alt=${data.title}>
+                        <label id="image_name">Title: ${data.title}</label>
+                        <label id="author_name">By: ${data.author}</label>`;
+           
+            var image = document.getElementById("image");
+            image.onerror = function(){
+                image.alt = "There is no image at " + data.path;
+            };
+        }
+
         document.getElementById("display").style.display = "inline";
         document.getElementById("messages").style.display = "inline";
         document.getElementById("comment_form").style.display = "flex";
-        history.pushState(null, "", `index.html?gallery=${data.gallery}&id=${data._id}`);
 
         //if no left image set left arrow's visibility to hidden
         if(data.left !== null)
@@ -289,6 +303,7 @@ var view = (function(){
     view.removeImage = function(gallery){
 
         //hide image stuff
+        document.getElementById("error").innerHTML = "";
         document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("display").style.display = "none";
         document.getElementById("messages").style.display = "none";
@@ -303,6 +318,7 @@ var view = (function(){
     view.displayComments = function(data){
         var comments = data.comments;
         var user = data.curr_user;
+        document.getElementById("error").innerHTML = "";
 
         //remove old comments
         document.getElementById("message_area").innerHTML = "";
@@ -354,6 +370,7 @@ var view = (function(){
     view.setDelete = function(button){
         button.onclick = function(e){
             var id = button.parentNode.id;
+            document.getElementById("error").innerHTML = "";
             document.dispatchEvent(new CustomEvent("onDeleteComment", {detail: id}));
         };
     };
@@ -367,6 +384,7 @@ var view = (function(){
         var gallery = error.gallery;
 
         //hide signin, signup form and buttons if they are displayed and show signout button
+        document.getElementById("error").innerHTML = "";
         document.getElementById("sign_in_form").style.display = "none";
         document.getElementById("sign_in_button").style.display = "none";
         document.getElementById("sign_up_form").style.display= "none";
