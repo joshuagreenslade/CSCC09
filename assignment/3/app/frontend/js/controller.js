@@ -34,10 +34,6 @@
         view.displayError(message);
     });
 
- /*   document.addEventListener("removeError", function(e){
-        view.removeError();
-    });
-*/
 
     //view dispatched events
 

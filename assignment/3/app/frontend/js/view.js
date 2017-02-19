@@ -269,7 +269,6 @@ var view = (function(){
     view.displayImage = function(data){
 
         var url = location.href;
-//        document.getElementById("error").innerHTML = "";
         history.pushState(null, "", `index.html?gallery=${data.gallery}&id=${data._id}`);
 
         //hide the delete image button if the current user is not the gallery owner
@@ -314,7 +313,6 @@ var view = (function(){
     view.removeImage = function(gallery){
 
         //hide image stuff
-//        document.getElementById("error").innerHTML = "";
         document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("display").style.display = "none";
         document.getElementById("messages").style.display = "none";
@@ -329,7 +327,6 @@ var view = (function(){
     view.displayComments = function(data){
         var comments = data.comments;
         var user = data.curr_user;
-//        document.getElementById("error").innerHTML = "";
 
         //remove old comments
         document.getElementById("message_area").innerHTML = "";
@@ -395,7 +392,6 @@ var view = (function(){
         var gallery = error.gallery;
 
         //hide signin, signup form and buttons if they are displayed and show signout button
-//        document.getElementById("error").innerHTML = "";
         document.getElementById("sign_in_form").style.display = "none";
         document.getElementById("sign_in_button").style.display = "none";
         document.getElementById("sign_up_form").style.display= "none";

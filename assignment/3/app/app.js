@@ -54,7 +54,7 @@ var checkPassword = function(user, password){
 };
 
 
-// signin, signout
+//signin, signout
 
 //sign the user in and put the user into the session
 app.post('/api/signin/', function (req, res, next) {
