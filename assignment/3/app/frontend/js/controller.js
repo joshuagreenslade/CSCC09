@@ -15,7 +15,7 @@
     });
 
     document.addEventListener("onRemoveImage", function(e){
-        var gallery = e.detail
+        var gallery = e.detail;
         view.removeImage(gallery);
     });
 
@@ -31,9 +31,13 @@
 
     document.addEventListener("displayError", function(e){
         var message = e.detail;
-        view.displayError(message)
-    })
+        view.displayError(message);
+    });
 
+ /*   document.addEventListener("removeError", function(e){
+        view.removeError();
+    });
+*/
 
     //view dispatched events
 
@@ -58,7 +62,7 @@
 
     document.addEventListener("onSignOut", function(e){
         model.signOut();
-    })
+    });
 
     document.addEventListener("onImageUpload", function(e){
         var data = e.detail;
@@ -80,7 +84,7 @@
 
     document.addEventListener("getRightGallery", function(e){
         model.getRightGallery();
-    })
+    });
 
     document.addEventListener("getLeftImage", function(e){
         model.getLeftImage();

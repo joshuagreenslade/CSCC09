@@ -71,6 +71,7 @@ var view = (function(){
 
         if((username !== "") && (password !== "")){
             var data = {username, password};
+            document.getElementById("error").innerHTML = "";
             document.getElementById("sign_in_form").reset();
             document.dispatchEvent(new CustomEvent("onSignIn", {detail: data}));
         }
@@ -85,6 +86,7 @@ var view = (function(){
 
         if((username !== "") && (password !== "")){
             var data = {username, password};
+            document.getElementById("error").innerHTML = "";
             document.getElementById("sign_up_form").reset();
             document.dispatchEvent(new CustomEvent("onSignUp", {detail: data}));
         }
@@ -95,11 +97,13 @@ var view = (function(){
 
     //tells the model to get the left user
     document.getElementById("gallery_left_arrow").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getLeftGallery"));
     };
 
     //tells the model to get the right user
     document.getElementById("gallery_right_arrow").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getRightGallery"));
     };
 
@@ -157,6 +161,7 @@ var view = (function(){
             document.getElementById("url_input").value = "";
 
             data = {file, title};
+            document.getElementById("error").innerHTML = "";
             document.dispatchEvent(new CustomEvent("onImageUpload", {detail: data}));
         }
     };
@@ -166,16 +171,19 @@ var view = (function(){
 
     //tells the model to get the left image
     document.getElementById("left_arrow").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getLeftImage"));
     };
 
     //tells the model to get the right image
     document.getElementById("right_arrow").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getRightImage"));
     };
 
     //tells model to delete the image
     document.getElementById("delete_image").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("deleteImage"));
     };
 
@@ -195,16 +203,19 @@ var view = (function(){
             return;
 
         document.getElementById("comment_form").reset();
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("onNewComment", {detail: data}));
     };
 
     //tells the model to get the 10 newer comments
     document.getElementById("newer_comments").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getNewerComments"));
     };
 
     //tells the model to get the 10 older comments
     document.getElementById("older_comments").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
         document.dispatchEvent(new CustomEvent("getOlderComments"));
     };
 
@@ -223,7 +234,7 @@ var view = (function(){
         document.getElementsByClassName("sign_up_stuff")[0].style.display = "none";
         document.getElementsByClassName("sign_up_stuff")[1].style.display = "none";
 
-        document.getElementById("sign_out_button").style.display = "flex"
+        document.getElementById("sign_out_button").style.display = "flex";
 
         //if the gallery belongs to the current user display the upload image form, otherwise hide it
         if(gallery.username === gallery.curr_user)
@@ -258,7 +269,7 @@ var view = (function(){
     view.displayImage = function(data){
 
         var url = location.href;
-        document.getElementById("error").innerHTML = "";
+//        document.getElementById("error").innerHTML = "";
         history.pushState(null, "", `index.html?gallery=${data.gallery}&id=${data._id}`);
 
         //hide the delete image button if the current user is not the gallery owner
@@ -303,7 +314,7 @@ var view = (function(){
     view.removeImage = function(gallery){
 
         //hide image stuff
-        document.getElementById("error").innerHTML = "";
+//        document.getElementById("error").innerHTML = "";
         document.getElementById("image_stuff").innerHTML = "";
         document.getElementById("display").style.display = "none";
         document.getElementById("messages").style.display = "none";
@@ -318,7 +329,7 @@ var view = (function(){
     view.displayComments = function(data){
         var comments = data.comments;
         var user = data.curr_user;
-        document.getElementById("error").innerHTML = "";
+//        document.getElementById("error").innerHTML = "";
 
         //remove old comments
         document.getElementById("message_area").innerHTML = "";
@@ -384,7 +395,7 @@ var view = (function(){
         var gallery = error.gallery;
 
         //hide signin, signup form and buttons if they are displayed and show signout button
-        document.getElementById("error").innerHTML = "";
+//        document.getElementById("error").innerHTML = "";
         document.getElementById("sign_in_form").style.display = "none";
         document.getElementById("sign_in_button").style.display = "none";
         document.getElementById("sign_up_form").style.display= "none";
@@ -398,8 +409,9 @@ var view = (function(){
 
         //if gallery does not exist return to the users gallery
         if(gallery === null){
-            document.getElementById("return_to_start").innerHTML = "Return to your Gallery"
+            document.getElementById("return_to_start").innerHTML = "Return to your Gallery";
             document.getElementById("return_to_start").onclick = function(e){
+                document.getElementById("error").innerHTML = "";
                 document.dispatchEvent(new CustomEvent("returnToGallery"));
             };
         }
@@ -407,6 +419,7 @@ var view = (function(){
         //if image does not exist return to start of gallery
         else{
             document.getElementById("return_to_start").onclick = function(e){
+                document.getElementById("error").innerHTML = "";
                 document.dispatchEvent(new CustomEvent("returnToStart"));
             };
         }
@@ -425,6 +438,11 @@ var view = (function(){
         document.getElementById("error").innerHTML = message;
     };
 
+ /*   //remove error message
+    view.removeError = function(){
+        document.getElementById("error").innerHTML = "";
+    }
+*/
     return view;
     
 }());
