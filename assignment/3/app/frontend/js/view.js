@@ -434,11 +434,6 @@ var view = (function(){
         document.getElementById("error").innerHTML = message;
     };
 
- /*   //remove error message
-    view.removeError = function(){
-        document.getElementById("error").innerHTML = "";
-    }
-*/
     return view;
     
 }());

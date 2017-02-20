@@ -1,5 +1,6 @@
 #error{
     color: red;
+    word-wrap: break-word;
 }
 
 #gallery_navigation{
@@ -13,7 +14,7 @@
 
 #gallery_name{
     max-width: 600px;
-    word-wrap: break-word;  
+    word-wrap: break-word;
 }
 
 #add_image_form{

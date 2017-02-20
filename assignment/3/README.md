@@ -125,6 +125,8 @@ $ curl -X POST
   - body: "Invalid date"
 - response: 401
   - body: "Forbidden"
+- response: 404
+  - body: "Image with id 'imageId' does not exist in gallery 'gallery'"
 - response: 500
   - body: Database error
 
@@ -289,7 +291,7 @@ $ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/commen
   
 ### Delete
   
-- description: delete the image with the given id from the given gallery
+- description: delete the image with the given id and its comments from the given gallery
 - request: `DELETE /api/galleries/:gallery/images/:id/`
 - response: 200
   - content-type: `application/json`

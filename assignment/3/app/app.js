@@ -150,33 +150,54 @@ app.post('/api/galleries/:gallery/images/', upload.single('picture'), function(r
 	req.checkBody('title').notEmpty();
 	req.checkBody('picture').isURL({protocols: ['https'], require_protocol: true});
 	req.getValidationResult().then(function(errors){
-		if(errors.mapped().gallery)
+		if(errors.mapped().gallery){
+			
+			//delete the uploaded image
+			if(file.path) fs.unlink(file.path);
 			return res.status(400).end("Invalid gallery name, must only contain numbers or letters");
-		if(errors.mapped().title)
+		}
+		if(errors.mapped().title){
+
+			//delete the uploaded image
+			if(file.path) fs.unlink(file.path);
 			return res.status(400).end("Invalid title, must not be empty");
+		}
 		
 		//if file is a string and picture is not a valid https url
-		if(errors.mapped().picture && (typeof(file) === "string")){
+		if(errors.mapped().picture && (typeof(file) === "string"))
 			return res.status(400).end("Invalid url, must start with https://");
-		}
 		
 		//escape all dangerous characters in the title
 		req.sanitizeBody('title').escape();
 
 		//make sure that only the gallery owner can upload an image
-		if((!req.session.user) || (req.session.user.username !== req.params.gallery))
+		if((!req.session.user) || (req.session.user.username !== req.params.gallery)){
+
+			//delete the uploaded image
+			if(file.path) fs.unlink(file.path);
 			return res.status(401).end("Forbidden");
+		}
 
 		//link the gallery's previous image to the new one
 		images.findOne({gallery: req.params.gallery, right: null}, function(err, result){
-			if(err) return res.status(500).end(err);
+			if(err){
+
+				//delete the uploaded image
+				if(file.path) fs.unlink(file.path);
+				return res.status(500).end(err);
+			}
 			var left = null;
 			if(result)
 				left = result._id;
 
 			//add the image info to the gallery's images database
 			images.insert({gallery: req.params.gallery, picture: file, title: req.body.title, author: req.session.user.username, left: left, right: null}, function(err, insert_result){
-				if(err) return res.status(500).end(err);
+				if(err){
+
+					//delete the uploaded image
+					if(file.path) fs.unlink(file.path);
+					return res.status(500).end(err);
+				}
 
 				//link the new image to the previous one in the gallery
 				if(result){
@@ -214,26 +235,33 @@ app.post('/api/galleries/:gallery/images/:imageId/comments/', function(req, res,
 		if(!req.session.user)
 			return res.status(401).end("Forbidden");
 
-		//link the previous comment with the same imageId in gallery to the new comment 
-		comments.findOne({gallery: req.params.gallery, newer_comment: null, image_id: req.params.imageId}, function(err, result){
+		//check that image exists in gallery
+		images.findOne({gallery: req.params.gallery, _id: req.params.imageId}, function(err, image){
 			if(err) return res.status(500).end(err);
-			var older_comment = null;
-			if(result)
-				older_comment = result._id;
-
-			//add the comment to the comments database
-			comments.insert({gallery: req.params.gallery, image_id: req.params.imageId, author: req.session.user.username, message: req.body.message, date: req.body.date, older_comment: older_comment, newer_comment: null}, function(err, insert_result){
+			if(image === null)
+				return res.status(404).json("Image with id " + req.params.imageId + " does not exist in gallery " + req.params.gallery);
+			
+			//link the previous comment with the same imageId in gallery to the new comment 
+			comments.findOne({gallery: req.params.gallery, newer_comment: null, image_id: req.params.imageId}, function(err, result){
 				if(err) return res.status(500).end(err);
+				var older_comment = null;
+				if(result)
+					older_comment = result._id;
 
-				//link the new comment to the previous comment
-				if(result){
-					result.newer_comment = insert_result._id;
-					comments.update({_id: result._id}, result, function(err){
-						if(err) return res.status(500).end(err);
-					});
-				}
-				res.json(insert_result._id);
-				return next();
+				//add the comment to the comments database
+				comments.insert({gallery: req.params.gallery, image_id: req.params.imageId, author: req.session.user.username, message: req.body.message, date: req.body.date, older_comment: older_comment, newer_comment: null}, function(err, insert_result){
+					if(err) return res.status(500).end(err);
+
+					//link the new comment to the previous comment
+					if(result){
+						result.newer_comment = insert_result._id;
+						comments.update({_id: result._id}, result, function(err){
+							if(err) return res.status(500).end(err);
+						});
+					}
+					res.json(insert_result._id);
+					return next();
+				});
 			});
 		});
 	});
@@ -392,7 +420,7 @@ app.get('/api/galleries/:gallery/images/:imageId/comments/:firstComment/', funct
 		else if((sort !== "decreasing") && (sort !== "increasing"))
 			return res.status(400).json("Invalid arguments. Sort must be a decreasing or increasing and " + sort + " is not");
 
-		var search = {_id: firstComment, gallery: req.params.gallery};
+		var search = {_id: firstComment, image_id: imageId, gallery: req.params.gallery};
 		if(firstComment === "last")
 			search = {image_id: imageId, gallery: req.params.gallery};
 
@@ -438,7 +466,7 @@ app.get('/api/galleries/:gallery/images/:imageId/comments/:firstComment/', funct
 
 //Delete
 
-//deletes the image with the given id from the given gallery
+//deletes the image with the given id and its comments from the given gallery
 app.delete('/api/galleries/:gallery/images/:id/', function(req, res, next){
 
 	//check for invalid gallery, imageId
@@ -487,6 +515,12 @@ app.delete('/api/galleries/:gallery/images/:id/', function(req, res, next){
 					if(err) return res.status(500).end(err);
 					if(result.picture.path)
 						fs.unlink(result.picture.path);
+
+					//delete the comments associated with that image
+					comments.remove({image_id: result._id}, function(err){
+						if(err) return res.status(500).end(err);
+					});
+					
 					res.json(next_id);
 					return next();
 				});

@@ -116,15 +116,15 @@ var model = (function(){
             if (this.readyState === XMLHttpRequest.DONE){
                 if(this.status < 400){
                     var user = JSON.parse(this.responseText);
-                    curr_gallery = user.username;
+                    
 
                     //if a gallery and image were given in the url load them
                     if(location.search !== ""){
                         model.load(location.search);
-                        if(error)
-                            model.getUserGallery();
+
                     }
                     else{
+                        curr_gallery = user.username;
                         model.getImageAt("first");
                         document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
                     }
@@ -148,15 +148,15 @@ var model = (function(){
             if (this.readyState === XMLHttpRequest.DONE){
                 if(this.status < 400){
                     var user = JSON.parse(this.responseText);
-                    curr_gallery = user.username;
+                    
 
                     //if a gallery and image were given in the url load them
                     if(location.search !== ""){
                         model.load(location.search);
-                        if(error)
-                            model.getUserGallery();
+
                     }
                     else{
+                        curr_gallery = user.username;
                         model.getImageAt("first");
                         document.dispatchEvent(new CustomEvent("onGalleryRetrieved", {detail: user}));
                     }
@@ -387,6 +387,10 @@ var model = (function(){
                 else if(this.status === 404){
                     var response = {message: this.responseText, gallery: curr_gallery};
                     document.dispatchEvent(new CustomEvent("error", {detail: response}));
+                }
+                else{
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
+                    model.getGalleryAt(curr_gallery);
                 }
             }
         };
