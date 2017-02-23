@@ -125,7 +125,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-My flag names are `httpOnly`, `secure`, `sameSite` because `HttpOnly`, `Secure`, `SameSite` do not work. Also to improve security my app will not allow url images to be uploaded that do not use https.
+My flag names are `httpOnly`, `secure`, `sameSite` because `HttpOnly`, `Secure`, `SameSite` do not work. My app makes sure that if a url is entered that it is a valid one.
 ```
 
 ## Frontend Update
@@ -226,4 +226,5 @@ In the box below, write any comment you would like to communicate the TA regardi
 **Comments**
 ```
 There are only error messages in the console are those that I sent, such as 400, 401, 403, 404, ...
+There are also only warnings of image mixed content if the user gives the app the url of an image using http.
 ```

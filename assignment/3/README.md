@@ -89,7 +89,7 @@ $ curl -X POST
 - response: 400
   - body: "Invalid title, must not be empty"
 - response: 400
-  - body: "Invalid url, must start with https://"
+  - body: "Invalid url"
 - response: 401
   - body: "Forbidden"
 - response: 500

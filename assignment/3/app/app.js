@@ -148,7 +148,7 @@ app.post('/api/galleries/:gallery/images/', upload.single('picture'), function(r
 	//check for invalid gallery, picture, title
 	req.checkParams('gallery').notEmpty().isAlphanumeric();
 	req.checkBody('title').notEmpty();
-	req.checkBody('picture').isURL({protocols: ['https'], require_protocol: true});
+	req.checkBody('picture').isURL({require_protocol: true});
 	req.getValidationResult().then(function(errors){
 		if(errors.mapped().gallery){
 			
@@ -163,9 +163,9 @@ app.post('/api/galleries/:gallery/images/', upload.single('picture'), function(r
 			return res.status(400).end("Invalid title, must not be empty");
 		}
 		
-		//if file is a string and picture is not a valid https url
+		//if file is a string and picture is not a valid url
 		if(errors.mapped().picture && (typeof(file) === "string"))
-			return res.status(400).end("Invalid url, must start with https://");
+			return res.status(400).end("Invalid url");
 		
 		//escape all dangerous characters in the title
 		req.sanitizeBody('title').escape();
