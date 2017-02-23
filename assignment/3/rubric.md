@@ -125,7 +125,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-My flag names are `httpOnly`, `secure`, `sameSite` because `HttpOnly`, `Secure`, `SameSite` do not work. Also to improve security my app will not allow images to be uploaded that do not use https.
+My flag names are `httpOnly`, `secure`, `sameSite` because `HttpOnly`, `Secure`, `SameSite` do not work. Also to improve security my app will not allow url images to be uploaded that do not use https.
 ```
 
 ## Frontend Update
