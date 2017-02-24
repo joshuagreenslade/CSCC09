@@ -34,6 +34,7 @@
 $ curl -X POST 
        -H "Content-Type: application/json" 
        -d '{"username":"alice", "password":"pass4admin"}'
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/signin/
 ```
 
@@ -67,6 +68,7 @@ $ curl -X POST
 $ curl -X POST 
        -H "Content-Type: application/json" 
        -d '{"username":"alice", "password":"pass4admin"}'
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/users/
 ```
 
@@ -100,6 +102,7 @@ $ curl -X POST
        -H "Content-Type: multipart/form-data" 
        -F 'picture=http://images.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png'
        -F 'title=Google'
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/galleries/alice/images/
 ```
 
@@ -134,6 +137,7 @@ $ curl -X POST
 $ curl -X POST 
        -H "Content-Type: application/json" 
        -d '{"message":"Hello World", "date":"2/5/2017"}'
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/comments/
 ```
 
@@ -155,7 +159,8 @@ $ curl -X POST
   - body: Database error
 
 ```
-$ curl https://localhost:3000/api/galleries/currentGallery/
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/galleries/currentGallery/
 ```
 
 
@@ -180,7 +185,8 @@ $ curl https://localhost:3000/api/galleries/currentGallery/
   - body: Database error
 
 ```
-$ curl https://localhost:3000/api/galleries/alice/
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/galleries/alice/
 ```
 
 
@@ -195,7 +201,8 @@ $ curl https://localhost:3000/api/galleries/alice/
   - body: Database error
 
 ```
-$ curl https://localhost:3000/api/signout/
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/signout/
 ```
 
 
@@ -228,7 +235,8 @@ $ curl https://localhost:3000/api/signout/
   - body: Database error
  
 ``` 
-$ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/
 ``` 
 
 
@@ -253,7 +261,8 @@ $ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/
   - body: Database error
  
 ``` 
-$ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/picture/
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/picture/
 ``` 
   
 
@@ -287,7 +296,8 @@ $ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/pictur
   - body: Database error
  
 ``` 
-$ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/comments/last/?limit=1&sort=decreasing
+$ curl -b cookie.txt -c cookie.txt -k
+       https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/comments/last/?limit=1&sort=decreasing
 ``` 
 
   
@@ -313,6 +323,7 @@ $ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/commen
 
 ``` 
 $ curl -X DELETE
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/
 ``` 
 
@@ -339,5 +350,6 @@ $ curl -X DELETE
 
 ``` 
 $ curl -X DELETE
+       -b cookie.txt -c cookie.txt -k
        https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/comments/cgAscdvYN5hapwRP/
 ``` 
