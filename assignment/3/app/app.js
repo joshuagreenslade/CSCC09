@@ -375,8 +375,15 @@ app.get('/api/galleries/:gallery/images/:id/picture/', function(req, res, next){
 		images.findOne({_id: req.params.id, gallery: req.params.gallery}, function(err, result){
 			if(err) return res.status(500).end(err);
 			if(result){
-				res.setHeader('Content-Type', result.picture.mimetype);
-		        res.sendFile(path.join(__dirname, result.picture.path));
+				console.log(result.picture)
+				console.log(typeof(result.picture))
+				if(typeof(result.picture) !== 'string'){
+					res.setHeader('Content-Type', result.picture.mimetype);
+			        res.sendFile(path.join(__dirname, result.picture.path));
+			    }
+			    else{
+			    	res.end(result.picture)
+			    }
 		    	return next();
 	    	}
 	    	else return res.status(404).json("Image with id " + req.params.id + " does not exists in gallery " + req.params.gallery);

@@ -33,7 +33,7 @@
 ```
 $ curl -X POST 
        -H "Content-Type: application/json" 
-       -d '{"username":"Alice", "password":"pass4admin"}''
+       -d '{"username":"alice", "password":"pass4admin"}'
        https://localhost:3000/api/signin/
 ```
 
@@ -66,8 +66,8 @@ $ curl -X POST
 ```
 $ curl -X POST 
        -H "Content-Type: application/json" 
-       -d '{"username":"Alice", "password":"pass4admin"}'
-       https://localhost:3000/api/user/
+       -d '{"username":"alice", "password":"pass4admin"}'
+       https://localhost:3000/api/users/
 ```
 
 
@@ -234,10 +234,12 @@ $ curl https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/
 
 ### Read
 
-- description: retrieve the url for the picture with the given id in the given gallery
+- description: retrieve the file or the url for the picture with the given id in the given gallery
 - request: `GET /api/galleries/:gallery/images/:id/picture/`   
 - response: 200
   - content-type: `mimetype`
+  - body: picture file
+- response: 200
   - body: (string) the url for the picture
 - response: 400
   - body: "Invalid gallery name, must only contain numbers or letters"
@@ -337,5 +339,5 @@ $ curl -X DELETE
 
 ``` 
 $ curl -X DELETE
-       https://localhost:3000/api/galleries/alice/imageId/9DzkjQWvNvSHx3K8/comments/cgAscdvYN5hapwRP/
+       https://localhost:3000/api/galleries/alice/images/9DzkjQWvNvSHx3K8/comments/cgAscdvYN5hapwRP/
 ``` 
