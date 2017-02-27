@@ -22,9 +22,7 @@
     - left: (string) the username of the user added before the current one
     - right: (string) the username of the user added after the current one
 - response: 400
-  - body: "Invalid username, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid password, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'username', msg: 'Must only contain numbers or letters', value: username }, { param: 'password', msg: 'Must only contain numbers or letters', value: password } ]"
 - response: 401
   - body: "Unauthorized"
 - response: 500
@@ -56,9 +54,7 @@ $ curl -X POST
     - left: (string) the username of the user added before the current one
     - right: (string) the username of the user added after the current one
 - response: 400
-  - body: "Invalid username, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid password, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'username', msg: 'Must only contain numbers or letters', value: username }, { param: 'password', msg: 'Must only contain numbers or letters', value: password } ]"
 - response: 409
   - body: "Username 'username' already exists"
 - response: 500
@@ -87,11 +83,7 @@ $ curl -X POST
   - content-type: `application/json`
   - body: _id: (string) the id of the newly created image
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid title, must not be empty"
-- response: 400
-  - body: "Invalid url"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'title', msg: 'Must not be empty', value: title }, { param: 'picture', msg: 'Invalid url', value: picture } ]"
 - response: 401
   - body: "Forbidden"
 - response: 500
@@ -119,13 +111,7 @@ $ curl -X POST
   - content-type: `application/json`
   - body: _id: (string) the id of the newly created comment
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid image id, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid message, must not be empty"
-- response: 400
-  - body: "Invalid date"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'imageId', msg: 'Must only contain numbers or letters', value: imageId }, { param: 'message', msg: 'Must not be empty', value: message }, { param: 'date', msg: 'Invalid date', value: date } ]"
 - response: 401
   - body: "Forbidden"
 - response: 404
@@ -176,7 +162,7 @@ $ curl -b cookie.txt -c cookie.txt -k
     - left: (string) the username of the user added before the current one
     - right: (string) the username of the user added after the current one
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery } ]"
 - response: 401
   - body: "Forbidden"
 - response: 404
@@ -224,9 +210,7 @@ $ curl -b cookie.txt -c cookie.txt -k
 - response: 200
   - body: null
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid imageid, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'id', msg: 'Must only contain numbers or letters', value: id } ]"
 - response: 401
   - body: "Forbidden"
 - response: 404
@@ -250,9 +234,7 @@ $ curl -b cookie.txt -c cookie.txt -k
 - response: 200
   - body: (string) the url for the picture
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid image id, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'id', msg: 'Must only contain numbers or letters', value: id } ]"
 - response: 401
   - body: "Forbidden"
 - response: 404
@@ -281,11 +263,7 @@ $ curl -b cookie.txt -c cookie.txt -k
     - older_comment: (string) the id of the comment added before this one
     - newer_comment: (string) the id of the comment added after this one
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid image id, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid comment id, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'imageId', msg: 'Must only contain numbers or letters', value: imageId }, { param: 'firstComment', msg: 'Must only contain numbers or letters', value: firstComment } ]"
 - response: 400
   - body: "Invalid arguments. Limit must be a number and 'limit' is not"
 - response: 400
@@ -311,9 +289,7 @@ $ curl -b cookie.txt -c cookie.txt -k
 - response: 200
   - body: null
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid image id, must only contain numbers or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'id', msg: 'Must only contain numbers or letters', value: id } ]"
 - response: 401
   - body:"Forbidden"
 - response: 404
@@ -336,11 +312,7 @@ $ curl -X DELETE
   - content-type: `application/json`
   - body: (string) the id of the comment deleted
 - response: 400
-  - body: "Invalid gallery name, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid image id, must only contain numbers or letters"
-- response: 400
-  - body: "Invalid comment id, must only contain numebrs or letters"
+  - body: "Validation errors: [ { param: 'gallery', msg: 'Must only contain numbers or letters', value: gallery }, { param: 'imageId', msg: 'Must only contain numbers or letters', value: imageId }, { param: 'id', msg: 'Must only contain numbers or letters', value: id } ]"
 - response: 401
   - body: "Forbidden"
 - response: 404

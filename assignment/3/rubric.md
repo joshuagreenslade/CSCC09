@@ -34,7 +34,7 @@ I hereby declared that the work submitted here is mine and its production compli
 1. the Code of Behaviour on Academic Matters of University of Toronto
 1. and the course policy (see website)
 
-[date] February 23, 2017
+[date] February 26, 2017
 
 [signature or initials] J. G.
 
@@ -186,7 +186,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-The api is completely updated.
+The api is completely updated. In the documentation the possible validation errors are given in one list where any combination of them could be returned depending on the situation.
 ```
 
 ## Code quality and organization
