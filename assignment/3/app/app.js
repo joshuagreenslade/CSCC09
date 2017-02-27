@@ -272,7 +272,7 @@ app.get('/api/galleries/:gallery/', checkInput, function(req, res, next){
 			return next();
 		}
 		else
-			res.status(404).end("Gallery " + req.params.gallery + " does not exist");
+			return res.status(404).end("Gallery " + req.params.gallery + " does not exist");
 	});
 });
 
@@ -500,6 +500,7 @@ app.delete('/api/galleries/:gallery/images/:imageId/comments/:id/', checkInput, 
 
 app.use(function (req, res, next){
     console.log("HTTPS Response", res.statusCode);
+    return next();
 });
 
 
