@@ -225,6 +225,6 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-There are only error messages in the console are those that I sent, such as 400, 401, 403, 404, ...
+The only error messages in the console are those that I sent, such as 400, 401, 403, 404, ...
 There are also only warnings of image mixed content if the user gives the app the url of an image using http.
 ```
