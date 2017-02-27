@@ -125,7 +125,7 @@ In the box below, write any comment you would like to communicate the TA regardi
 
 **Comments**
 ```
-My flag names are `httpOnly`, `secure`, `sameSite` because `HttpOnly`, `Secure`, `SameSite` do not work. My app makes sure that if a url is entered that it is a valid one.
+My app makes sure that if a url is entered that it is a valid one.
 ```
 
 ## Frontend Update

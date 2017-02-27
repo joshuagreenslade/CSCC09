@@ -95,6 +95,12 @@ var view = (function(){
 
     //gallery elements
 
+    //return to the user's gallery
+    document.getElementById("title").onclick = function(e){
+        document.getElementById("error").innerHTML = "";
+        document.dispatchEvent(new CustomEvent("returnToGallery"));
+    };
+
     //tells the model to get the left user
     document.getElementById("gallery_left_arrow").onclick = function(e){
         document.getElementById("error").innerHTML = "";

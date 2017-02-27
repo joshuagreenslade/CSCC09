@@ -40,6 +40,12 @@ var model = (function(){
             model.getUserGallery();
         }
 
+        //make sure that \, /, ., or % is not in the url
+        else if((args.indexOf('\\') !== -1) || (args.indexOf('/') !== -1) || (args.indexOf('.') !== -1) || (args.indexOf('%') !== -1)){
+            document.dispatchEvent(new CustomEvent("displayError", {detail: "Url was not formatted properly"}));
+            return;
+        }
+
         //if arguments were given to the url
         else if(args.slice(0,1) === "?"){
             args = args.slice(1).split('&');
@@ -72,6 +78,12 @@ var model = (function(){
                     model.getUserGallery();
                     return;
                 }
+            }
+
+            //make sure the curr_id and curr_gallery args were not blank
+            if((curr_id === '') || (curr_gallery === '')){
+                    document.dispatchEvent(new CustomEvent("displayError", {detail: "Url was not formatted properly"}));
+                    return;
             }
 
             if(curr_id === null)
@@ -206,7 +218,6 @@ var model = (function(){
         var formdata = new FormData();
         formdata.append("picture", data.file);
         formdata.append("title", data.title);
-        formdata.append("author", data.author);
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE){
@@ -285,8 +296,10 @@ var model = (function(){
                     var response = {message: this.responseText, gallery: curr_gallery};
                     document.dispatchEvent(new CustomEvent("error", {detail: response}));
                 }
-                else
+                else{
+                    curr_gallery = null;
                     document.dispatchEvent(new CustomEvent("displayError", {detail: this.responseText}));
+                }
             }
         };
         xhr.open(method, url, true);
