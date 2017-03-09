@@ -14,15 +14,54 @@ var Datastore = require('nedb');
 var messages = new Datastore({ filename: 'db/messages.db', autoload: true, timestampData : true});
 var users = new Datastore({ filename: 'db/users.db', autoload: true });
 
+/////////////////////////////////////////////////////////////////////////////
+//how to run
+//
+//
+//
+//
+//to test on windows do the following:
+//in command prompt
+//
+// docker-machine start default
+// SET DOCKER_TLS_VERIFY=1
+// SET DOCKER_HOST=tcp://192.168.99.100:2376
+// SET DOCKER_CERT_PATH=C:\Users\Joshua\.docker\machine\machines\default
+// SET DOCKER_MACHINE_NAME=default
+// docker start my_memcached
+//
+//then in this file use '192.168.99.100:11211' as the arg for Memcached
+//start nodemon app.js
+//type https://localhost:3000 into browser
+//
+//when done do
+// docker stop my_memcached
+// docker-machine stop default
+//
+//
+//
+//to run on the docker server:
+//first in this file use 'localhost:11211' as the arg for Memcached
+//in command prompt in the greensl4/labs/8 directory do
+// docker build -t my_image .
+// docker run -p 443:3000 --name my_container -d my_image
+//
+//then to run type https://192.168.99.100/ into the browser (the port of 443 is assumed)
+//
+//when done do
+// docker stop my_container
+// docker rm my_container
+// docker-machine stop default
+/////////////////////////////////////////////////////////////////////////////
+
 var Memcached = require('memcached');
-var memcached = new Memcached('localhost:11211');
+var memcached = new Memcached(/*'192.168.99.100:11211'*/'localhost:11211');
 
 //memcached stuff
 var warmCache = function(){
-    messages.find({}, function(err, data){
+    messages.find({}).sort({createdAt:-1}).limit(5).exec(function(err, data){
         if(err) return console.log(err);
-        var messages = data.map(function(message){
-            return message;}).join('\n');
+        var messages = data.map(function(message){return message});
         memcached.set('messages', messages, 0, function(err){
             if(err) console.log(err);
         });
@@ -30,6 +69,7 @@ var warmCache = function(){
 }
 
 var getMessages = function(callback){
+
     memcached.get('messages', function(err, messages){
         if(err) return callback(err, null);
         return callback(null, messages);
@@ -37,15 +77,11 @@ var getMessages = function(callback){
 }
 
 var storeMessage = function(message, callback){
-    messages.insert({content: message}, function(err, data){
+    messages.insert(message, function(err, data){
         if(err) return callback(err, null);
         warmCache();
         return callback(null, data);
     });
-}
-
-var updateMessage = function(message, callback){
-    messages.update
 }
 
 
@@ -215,11 +251,6 @@ app.get('/api/messages/', function (req, res, next) {
         });
         }
     })
-
-//    messages.find({}).sort({createdAt:-1}).limit(5).exec(function(err, selectedMessages) { 
-        
-        
-//    });
 });
 
 app.get('/api/users/:username/picture/', function (req, res, next) {
