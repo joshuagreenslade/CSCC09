@@ -51,6 +51,9 @@ var users = new Datastore({ filename: 'db/users.db', autoload: true });
 // docker run -p 443:3000 --name my_container -d my_image
 //
 //then to run type https://192.168.99.100/ into the browser (the port of 443 is assumed)
+//if that doesn't work iin command prompt do
+// docker-machine ip default
+//and use that ip instead of 192.168.99.100
 //
 //when done do
 // docker stop my_container
