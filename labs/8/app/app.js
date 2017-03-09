@@ -31,6 +31,10 @@ var users = new Datastore({ filename: 'db/users.db', autoload: true });
 // docker start my_memcached
 //
 //then in this file use '192.168.99.100:11211' as the arg for Memcached
+//(if it doesnt work do
+// docker-machine ip default
+//and use that ip:11211 instead of 192.168.99.100:11211)
+//
 //start nodemon app.js
 //type https://localhost:3000 into browser
 //
